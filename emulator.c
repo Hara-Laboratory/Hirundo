@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon Mar  2 13:49:46 2015
+* Last Modified on : Mon Mar  2 18:19:07 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 //#include "bs.h"
-//#include "isort.h"
+#include "isort.h"
 //#include "fibcall.h"
 //#include "bubble.h"
 //#include "bf.h"
@@ -24,7 +24,7 @@
 //#include "adpcm.h"
 //#include "intmm.h"
 //#include "jfdctint.h"
-#include "string_search.h"
+//#include "string_search.h"
 //#include "gsm.h"
 //#include "matmul.h"
 //#include "mpeg.h"
