@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Tue Mar  3 09:52:27 2015
+* Last Modified on : Tue Mar  3 11:19:43 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "bs.h"
+//#include "bs.h"
 //#include "isort.h"
 //#include "fibcall.h"
 //#include "bubble.h"
@@ -24,7 +24,7 @@
 //#include "adpcm.h"
 //#include "intmm.h"
 //#include "jfdctint.h"
-//#include "string_search.h"
+#include "string_search.h"
 //#include "gsm.h"
 //#include "matmul.h"
 //#include "mpeg.h"
@@ -73,6 +73,12 @@ int main(int argc, char **argv){
     printf("%d\t", MEM[i]);
   printf("\n");
 #endif
+#if 1
+  printf("=========\nPRINT MEM\n=========\n");
+  for (i = 0x17f5; i < 0x17f5 + 10; i++)
+    printf("%d\t", MEM[i]);
+  printf("\n");
+#endif
   return STATUS;
 }
 
@@ -101,7 +107,7 @@ uint emulator (unsigned int prog_count){
   
   while (EMULATOR_STATUS == NORMAL){
     /*fetch instructions*/
-    printf("%d: %3.3x, INST: %8.8x", i, prog_count << 2, get_value(prog_count));
+    //printf("%d: %3.3x, INST: %8.8x", i, prog_count << 2, get_value(prog_count));
     instruction = get_value (prog_count);
     prog_count_1 = prog_count_1 + 1;
     prog_count = prog_count_1;
@@ -133,34 +139,34 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   bool R_TYPE = (*opcode == 0x00);
   bool NOP_COND = (instruction == 0x0);
-  bool SLL_COND = (R_TYPE & !NOP_COND & *funct == 0x00);
-  bool SRL_COND = (R_TYPE & *funct == 0x02);
-  bool SRA_COND = (R_TYPE & *funct == 0x03);
-  bool SLLV_COND = (R_TYPE & *funct == 0x04);
-  bool SRLV_COND = (R_TYPE & *funct == 0x06);
-  bool SRAV_COND = (R_TYPE & *funct == 0x07);
-  bool JR_COND = (R_TYPE & *funct == 0x08);
-  bool SYS_COND = (R_TYPE & *funct == 0x0C);
-  bool MFHI_COND = (R_TYPE & *funct == 0x10);
-  bool MFLO_COND = (R_TYPE & *funct == 0x12);
-  bool MULT_COND = (R_TYPE & *funct == 0x18);
+  bool SLL_COND = (R_TYPE & !NOP_COND & (*funct == 0x00));
+  bool SRL_COND = (R_TYPE & (*funct == 0x02));
+  bool SRA_COND = (R_TYPE & (*funct == 0x03));
+  bool SLLV_COND = (R_TYPE & (*funct == 0x04));
+  bool SRLV_COND = (R_TYPE & (*funct == 0x06));
+  bool SRAV_COND = (R_TYPE & (*funct == 0x07));
+  bool JR_COND = (R_TYPE & (*funct == 0x08));
+  bool SYS_COND = (R_TYPE & (*funct == 0x0C));
+  bool MFHI_COND = (R_TYPE & (*funct == 0x10));
+  bool MFLO_COND = (R_TYPE & (*funct == 0x12));
+  bool MULT_COND = (R_TYPE & (*funct == 0x18));
   //bool DIV_COND =
-  bool ADDU_COND = (R_TYPE & *funct == 0x21);
-  bool SUBU_COND = (R_TYPE & *funct == 0x23);
-  bool AND_COND = (R_TYPE & *funct == 0x24);
-  bool OR_COND = (R_TYPE & *funct == 0x25);
-  bool XOR_COND = (R_TYPE & *funct == 0x26);
-  bool NOR_COND = (R_TYPE & *funct == 0x27);
-  bool SLT_COND = (R_TYPE & *funct == 0x2A);
-  bool SLTU_COND = (R_TYPE & *funct == 0x2B);
+  bool ADDU_COND = (R_TYPE & (*funct == 0x21));
+  bool SUBU_COND = (R_TYPE & (*funct == 0x23));
+  bool AND_COND = (R_TYPE & (*funct == 0x24));
+  bool OR_COND = (R_TYPE & (*funct == 0x25));
+  bool XOR_COND = (R_TYPE & (*funct == 0x26));
+  bool NOR_COND = (R_TYPE & (*funct == 0x27));
+  bool SLT_COND = (R_TYPE & (*funct == 0x2A));
+  bool SLTU_COND = (R_TYPE & (*funct == 0x2B));
   //
   bool J_COND = (*opcode == 0x02);
   bool JAL_COND = (*opcode == 0x03);
   //
-  bool BLTZ_COND = (*opcode == 0x01 & *rt == 0x0);
-  bool BGEZ_COND = (*opcode == 0x01 & *rt == 0x1);
-  bool BEQ_COND = (*opcode == 0x04 & *rt != 0x0);
-  bool BEQZ_COND = (*opcode == 0x04 & *rt == 0x0);
+  bool BLTZ_COND = ((*opcode == 0x01) & (*rt == 0x0));
+  bool BGEZ_COND = ((*opcode == 0x01) & (*rt == 0x1));
+  bool BEQ_COND = ((*opcode == 0x04) & (*rt != 0x0));
+  bool BEQZ_COND = ((*opcode == 0x04) & (*rt == 0x0));
   bool BNE_COND = (*opcode == 0x05);
   bool BLEZ_COND = (*opcode == 0x06);
   bool BGTZ_COND = (*opcode == 0x07);
@@ -198,7 +204,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   /*MULT*/ /**opcode == 0x00 & *funct == 0x18*/
   long RES_MULT_TEMP = MULT (SRC1, SRC2);
-  int RES_MULT_LO = (*opcode == 0x00 & *funct == 0x18)? RES_MULT_TEMP & 0xFFFFFFFF : RES_MFLO;
+  int RES_MULT_LO = (MULT_COND)? RES_MULT_TEMP & 0xFFFFFFFF : RES_MFLO;
   int RES_MULT_HI = (RES_MULT_TEMP >> 32);
   /*if mult ==  true
  * prepear for subleq
@@ -358,18 +364,18 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((SLTI_COND)? RES_SLTI : 0x0) |/*SLTI*/
 	   ((SLTIU_COND)? RES_SLTIU : 0x0) |/*SLTIU*/
 	   ((LW_COND)? RES_LW : 0x0) |/*LW*/
-	   ((LBU_COND & BYTE_CHECK == 0x0)? RES_LBU0 : 0x0) |/*LBU*/
-	   ((LBU_COND & BYTE_CHECK == 0x1)? RES_LBU1 : 0x0) |/*LBU*/
-	   ((LBU_COND & BYTE_CHECK == 0x2)? RES_LBU2 : 0x0) |/*LBU*/
-	   ((LBU_COND & BYTE_CHECK == 0x3)? RES_LBU2 : 0x0) |/*LBU*/
-	   ((LB_COND & BYTE_CHECK == 0x0)? (signed int) RES_LBU0 : 0x0) |/*LB*/
-	   ((LB_COND & BYTE_CHECK == 0x1)? (signed int) RES_LBU1 : 0x0) |/*LB*/
-	   ((LB_COND & BYTE_CHECK == 0x2)? (signed int) RES_LBU2 : 0x0) |/*LB*/
-	   ((LB_COND & BYTE_CHECK == 0x3)? (signed int) RES_LBU2 : 0x0) |/*LB*/
-	   ((LH_COND & BIT_CHECK == 0x0)? (signed int) RES_LHU0 : 0x0) |/*LH*/
-	   ((LH_COND & BIT_CHECK == 0x1)? (signed int) RES_LHU1 : 0x0) |/*LH*/
-	   ((LHU_COND & BIT_CHECK == 0x0)? RES_LHU0 : 0x0) |/*LHU*/
-	   ((LHU_COND & BIT_CHECK == 0x1)? RES_LHU1 : 0x0) |/*LHU*/
+	   ((LBU_COND & (BYTE_CHECK == 0x0))? RES_LBU0 : 0x0) |/*LBU*/
+	   ((LBU_COND & (BYTE_CHECK == 0x1))? RES_LBU1 : 0x0) |/*LBU*/
+	   ((LBU_COND & (BYTE_CHECK == 0x2))? RES_LBU2 : 0x0) |/*LBU*/
+	   ((LBU_COND & (BYTE_CHECK == 0x3))? RES_LBU2 : 0x0) |/*LBU*/
+	   ((LB_COND & (BYTE_CHECK == 0x0))? (signed int) RES_LBU0 : 0x0) |/*LB*/
+	   ((LB_COND & (BYTE_CHECK == 0x1))? (signed int) RES_LBU1 : 0x0) |/*LB*/
+	   ((LB_COND & (BYTE_CHECK == 0x2))? (signed int) RES_LBU2 : 0x0) |/*LB*/
+	   ((LB_COND & (BYTE_CHECK == 0x3))? (signed int) RES_LBU2 : 0x0) |/*LB*/
+	   ((LH_COND & (BIT_CHECK == 0x0))? (signed int) RES_LHU0 : 0x0) |/*LH*/
+	   ((LH_COND & (BIT_CHECK == 0x1))? (signed int) RES_LHU1 : 0x0) |/*LH*/
+	   ((LHU_COND & (BIT_CHECK == 0x0))? RES_LHU0 : 0x0) |/*LHU*/
+	   ((LHU_COND & (BIT_CHECK == 0x1))? RES_LHU1 : 0x0) |/*LHU*/
 	   ((ORI_COND)? RES_ORI : 0x0) | /*ORI*/
 	   ((ANDI_COND)? RES_ANDI : 0x0) | /*ANDI*/
 	   ((XORI_COND)? RES_XORI : 0x0) | /*XORI*/
@@ -382,12 +388,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   //((ADDIU_COND)? RES_ADDIU : 0x0) |/*ADDIU*/
 	   ((LUI_COND)? RES_LUI : 0x0) |/*LUI*/
 	   ((SW_COND)? RES_SW : 0x0) |/*SW*/
-	   ((SB_COND & BYTE_CHECK == 0x0)? RES_SB0 : 0x0) |/*SB*/
-	   ((SB_COND & BYTE_CHECK == 0x1)? RES_SB1 : 0x0) |/*SB*/
-	   ((SB_COND & BYTE_CHECK == 0x2)? RES_SB2 : 0x0) |/*SB*/
-	   ((SB_COND & BYTE_CHECK == 0x3)? RES_SB3 : 0x0) |/*SB*/
-	   ((SH_COND & BIT_CHECK == 0x0)? RES_SH0 : 0x0) |/*SH*/
-	   ((SH_COND & BIT_CHECK == 0x1)? RES_SH1 : 0x0) | /*SH*/
+	   ((SB_COND & (BYTE_CHECK == 0x0))? RES_SB0 : 0x0) |/*SB*/
+	   ((SB_COND & (BYTE_CHECK == 0x1))? RES_SB1 : 0x0) |/*SB*/
+	   ((SB_COND & (BYTE_CHECK == 0x2))? RES_SB2 : 0x0) |/*SB*/
+	   ((SB_COND & (BYTE_CHECK == 0x3))? RES_SB3 : 0x0) |/*SB*/
+	   ((SH_COND & (BIT_CHECK == 0x0))? RES_SH0 : 0x0) |/*SH*/
+	   ((SH_COND & (BIT_CHECK == 0x1))? RES_SH1 : 0x0) | /*SH*/
 	   ((RESULT_EXP)? 0x0 : 0x0);/*EXPECTION*/
 
 
@@ -501,12 +507,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   /*syscall*/
   int SYSCALL_EXIT = get_value(2);
-  *EMULATOR_STATUS = (*opcode == 0x00 & *funct == 0x0C & SYSCALL_EXIT == 10) ? FINISH : NORMAL;
+  *EMULATOR_STATUS = (SYS_COND & (SYSCALL_EXIT == 10)) ? FINISH : NORMAL;
 
   write_value (RES_MULT_LO, LO);
   write_value (RESULT, WB_LOC);
   *prog_count = RET_ADD;
-  printf(" RET_ADD: %x\n", *prog_count << 2);
+  //printf(" RET_ADD: %x\n", *prog_count << 2);
 #if 0
   if (*opcode == 0x00 & *funct == 0x00 & instruction != 0x00){
     printf("Instruction: %8.8x\n", instruction);

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -g -O3
+CFLAGS=-c -g -O3 -Wall
 LDFLAGS=-lelf
 SOURCES=emulator.c
 OBJECTS=$(SOURCES:.c=.o)
