@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon Mar  2 19:30:35 2015
+* Last Modified on : Tue Mar  3 20:04:03 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -43,9 +43,9 @@ unsigned int TEMP7;
 #define TEMP_REG	34//holds imm values
 #define Y		35//use in subleq machine 
 #define	Z		36//use in subleq machine
-#define RETURN_PC	37//holds the return pc
-#define ARG1		38//use in subleq machine 
-#define	ARG2		39//use in subleq machine
+#define DEST_LOC	37//holds the return pc
+#define SRC1_LOC	38//use in subleq machine 
+#define	SRC2_LOC	39//use in subleq machine
 
 #define ADD_ROUTINE	40
 #define	SUB_ROUTINE	315
@@ -72,10 +72,10 @@ typedef	unsigned long	ulong;
 
 
 unsigned int ADD[15] = {
-    0, 4, ADD_ROUTINE+3,
-    1, 4, ADD_ROUTINE+6,
-    2, 2, ADD_ROUTINE+9,
-    4, 2, ADD_ROUTINE+12,
-    4, 4, (-1)
+    SRC1_LOC, Z, ADD_ROUTINE+3,
+    SRC2_LOC, Z, ADD_ROUTINE+6,
+    DEST_LOC, DEST_LOC, ADD_ROUTINE+9,
+    Z, DEST_LOC, ADD_ROUTINE+12,
+    Z, Z, 999//(-1)
 };
 
