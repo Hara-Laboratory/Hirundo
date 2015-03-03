@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon Mar  2 18:19:07 2015
+* Last Modified on : Tue Mar  3 09:52:27 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-//#include "bs.h"
-#include "isort.h"
+#include "bs.h"
+//#include "isort.h"
 //#include "fibcall.h"
 //#include "bubble.h"
 //#include "bf.h"
@@ -262,24 +262,33 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RET_ADD_BLTZ = (SRC1 < 0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BGTZ = (SRC1 > 0)? COND_BR_ADD : RET_ADD;
 
+  /*addiu*/
+  //int RES_ADDIU = NEW_ADD (SRC1, (signed short) *imm);
   /*addu*/
   // unsigned int RES_ADDU = NEW_ADD (SRC1, SRC2);
-  // 
+  //
+  
+  write_value ((signed short) *imm, TEMP_REG);
   TEMP0 = *rs;
-  TEMP1 = *rt;
-  TEMP2 = *rd;
-  if (ADDU_COND) {
-    printf("Use Subleq\n");
-    printf("addu $%d, $%d, $%d ; %d + %d\n", *rd, *rt, *rs, get_value(*rt), get_value(*rs));
-    subleq_machine(ADD_ROUTINE);
-    printf("%d + %d = %d\n", get_value(*rt), get_value(*rs), get_value(*rd));
+  TEMP1 = (ADDU_COND) ? *rt : 0x0 |
+	  (ADDIU_COND) ? TEMP_REG : 0x0;
+  TEMP2 = (ADDU_COND) ? *rd : 0x0 |
+	  (ADDIU_COND) ? *rt : 0x0;
+
+  unsigned int ROUTINE_ADD = (ADDU_COND | ADDIU_COND) ? ADD_ROUTINE : 0x0;
+  if (ADDU_COND | ADDIU_COND) {
+    //printf("Use Subleq\n");
+    //printf("addu $%d, $%d, $%d ; %d + %d\n", *rd, *rt, *rs, get_value(*rt), get_value(*rs));
+    subleq_machine(ROUTINE_ADD);
+    //printf("%d + %d = %d\n", get_value(*rt), get_value(*rs), get_value(*rd));
   }
 
-  /*addiu*/
-  int RES_ADDIU = NEW_ADD (SRC1, (signed short) *imm);
 
   /*lui*/
   int RES_LUI = (*imm << 16) | 0x0000;
+  
+
+  int RES_ADDIU = NEW_ADD (SRC1, (signed short) *imm);
 
   /*sw*/
   unsigned int MEM_ADD = ((RES_ADDIU & 0x7FFF) >> 2);
@@ -332,7 +341,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	    ((BGTZ_COND)? RET_ADD_BGTZ : 0x0) |/*BGTZ*/
 	    ((RET_ADD_EXP)? 0x0 : RET_ADD);
 
-  bool RESULT_EXP = (J_COND | JR_COND | SYS_COND | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | ADDU_COND | NOP_COND);
+  bool RESULT_EXP = (J_COND | JR_COND | SYS_COND | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | ADDU_COND | NOP_COND | ADDIU_COND);
 
   RESULT = ((SLL_COND)? RES_SLL : 0x0) |/*SLL*/
 	   ((SLLV_COND)? RES_SLLV : 0x0) |/*SLLV*/
@@ -370,7 +379,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((MFHI_COND)? RES_MFHI : 0x0) | /*MFHI*/
 	   ((MFLO_COND)? RES_MFLO : 0x0) | /*MFLO*/
 	   ((JAL_COND)? RES_JAL : 0x0) |/*JAL*/
-	   ((ADDIU_COND)? RES_ADDIU : 0x0) |/*ADDIU*/
+	   //((ADDIU_COND)? RES_ADDIU : 0x0) |/*ADDIU*/
 	   ((LUI_COND)? RES_LUI : 0x0) |/*LUI*/
 	   ((SW_COND)? RES_SW : 0x0) |/*SW*/
 	   ((SB_COND & BYTE_CHECK == 0x0)? RES_SB0 : 0x0) |/*SB*/
@@ -383,9 +392,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 
-  bool WB_TEMP_REG = (J_COND | BEQZ_COND | JR_COND | SYS_COND | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | ADDU_COND | NOP_COND);
+  bool WB_TEMP_REG = (J_COND | BEQZ_COND | JR_COND | SYS_COND | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | ADDU_COND | NOP_COND | ADDIU_COND);
   bool WB_RD = (SLL_COND | SLLV_COND | SRA_COND | SRAV_COND | SRL_COND | SRLV_COND | AND_COND | OR_COND | XOR_COND | NOR_COND | SLT_COND | SLTU_COND | SUBU_COND | MFHI_COND | MFLO_COND);  
-  bool WB_RT = (SLTI_COND | SLTIU_COND | LW_COND | LBU_COND | LB_COND | LH_COND | LHU_COND | ORI_COND | ANDI_COND | XORI_COND | ADDIU_COND | LUI_COND); 
+  bool WB_RT = (SLTI_COND | SLTIU_COND | LW_COND | LBU_COND | LB_COND | LH_COND | LHU_COND | ORI_COND | ANDI_COND | XORI_COND /*| ADDIU_COND */| LUI_COND); 
   bool WB_MEM_ADD = (SW_COND | SB_COND | SH_COND);
 
   WB_LOC = ((WB_TEMP_REG)? TEMP_REG : 0x0) | 
@@ -607,7 +616,7 @@ void subleq_machine(unsigned int prog_count) {
     signed int src1 = get_value (locA);
     signed int src2 = get_value (locB);
 
-    printf("subleq: %d, %d, %d: %d, %d: %d, %d -> %d\n", a, b, c, locA, locB, src1, src2, src2 - src1);
+    //printf("subleq: %d, %d, %d: %d, %d: %d, %d -> %d\n", a, b, c, locA, locB, src1, src2, src2 - src1);
     src2 = src2 - src1;
 
     write_value (src2, locB);
