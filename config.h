@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Tue Mar  3 20:04:03 2015
+* Last Modified on : Wed Mar  4 14:05:37 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -13,6 +13,10 @@
 #include <stdio.h>
 
 #define	VERIFICATION
+
+//#define	USE_SUBLEQ
+
+
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x2000//3800000//1024//0xe000000
