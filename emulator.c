@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed Mar  4 14:33:18 2015
+* Last Modified on : Wed Mar  4 15:17:31 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -15,19 +15,21 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-//#include "bs.h"
-//#include "isort.h"
-//#include "fibcall.h"
-//#include "bubble.h"
-//#include "bf.h"
-//#include "crc.h"
+
+
 //#include "adpcm.h"
-//#include "intmm.h"
-//#include "jfdctint.h"
-#include "string_search.h"
+//#include "bf.h"
+//#include "bs.h"
+//#include "bubble.h"
+//#include "crc.h"
+//#include "fibcall.h"
 //#include "gsm.h"
+//#include "intmm.h"
+//#include "isort.h"
+//#include "jfdctint.h"
 //#include "matmul.h"
 //#include "mpeg.h"
+#include "string_search.h"
 
 
 uint emulator (unsigned int);
@@ -90,8 +92,8 @@ uint emulator (unsigned int prog_count){
   unsigned int prog_count_1 = prog_count;
   unsigned int instruction;
 
-  write_value(0x000F000, 28);
-  write_value(0x0008000, 29);
+  write_value(0x0007C00, 28);
+  write_value(0x0007000, 29);
 
   uchar opcode;
   uchar funct;
