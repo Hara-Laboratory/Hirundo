@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Wed Mar  4 14:05:37 2015
+* Last Modified on : Tue Mar 10 19:29:44 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,10 +16,17 @@
 
 //#define	USE_SUBLEQ
 
-
+//#define	USE_ADDER
+//#define USE_SUB
+//#define USE_MULT
+//#define USE_MFLO
+//#define USE_MFHI
+#define USE_MTLO
+#define USE_MTHI
+//#define USE_SHIFTER
 
 //#define MEM_SIZE	1024//0xe000000
-#define MEM_SIZE	0x2000//3800000//1024//0xe000000
+#define MEM_SIZE	0x4000//3800000//1024//0xe000000
 //unsigned int MEM[MEM_SIZE];
 //unsigned char MEM0[MEM_SIZE];
 //unsigned char MEM1[MEM_SIZE];
@@ -51,13 +58,14 @@ unsigned int TEMP7;
 #define SRC1_LOC	38//use in subleq machine 
 #define	SRC2_LOC	39//use in subleq machine
 
-#define ADD_ROUTINE	40
-#define	SUB_ROUTINE	315
-#define	AND_ROUTINE	316
-#define	OR_ROUTINE	317
-#define SLL_ROUTINE	317
-#define SRL_ROUTINE	317
-#define SRA_ROUTINE	317
+#define ADD_ROUTINE	898
+#define MUL_ROUTINE	469
+#define	SUB_ROUTINE	256
+#define MFLO_ROUTINE	874
+#define MFHI_ROUTINE	886
+#define SLL_ROUTINE	436
+#define SRL_ROUTINE	274
+#define SRA_ROUTINE	346
 #define SLLV_ROUTINE	317
 #define SRLV_ROUTINE	317
 #define SRAV_ROUTINE	317
