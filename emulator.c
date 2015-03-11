@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed Mar 11 16:41:49 2015
+* Last Modified on : Wed Mar 11 17:46:32 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -386,6 +386,28 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RES_JAL = NEW_ADD2 (RET_ADD, 1);
   unsigned int RET_ADD_J = NEW_ADD2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
 
+
+  /*BNE BEQZ BLEZ*/
+  unsigned int COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (signed short)*imm), -1);
+  bool CHECK_EQ = (SRC1 == SRC2)? true : false;
+  bool SRC_EQ_0 = (SRC1 == 0) ? true : false;
+  bool SRC_GT_0 = (SRC1 > 0) ? true : false;
+
+  bool BNE_COND_TEMP = (BNE_COND & !CHECK_EQ);
+  bool BEQ_COND_TEMP = (BEQ_COND & CHECK_EQ);
+  bool BEQZ_COND_TEMP = (BEQZ_COND & (SRC_EQ_0));
+  bool BGEZ_COND_TEMP = (BGEZ_COND & (SRC_EQ_0 | SRC_GT_0));
+  bool BLEZ_COND_TEMP = (BLEZ_COND & (SRC_EQ_0 | !SRC_GT_0));
+  bool BLTZ_COND_TEMP = (BLTZ_COND & (!SRC_GT_0));
+  bool BGTZ_COND_TEMP = (BGTZ_COND & (SRC_GT_0));
+
+  bool BR_COND_ALL = (BNE_COND_TEMP | BEQ_COND_TEMP | BEQZ_COND_TEMP | BGEZ_COND_TEMP | BLEZ_COND_TEMP | BLTZ_COND_TEMP | BGTZ_COND_TEMP);
+
+  unsigned int RET_ADD_COND_BRANCH = (BR_COND_ALL) ? COND_BR_ADD : RET_ADD;
+
+
+
+#if 0
   /*BNE BEQZ BLEZ*/
   unsigned int COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (signed short)*imm), -1);
   bool CHECK_EQ = (SRC1 == SRC2)? true : false;
@@ -403,6 +425,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RET_ADD_BLEZ = (SRC_EQ_0 | !SRC_GT_0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BLTZ = (!SRC_GT_0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BGTZ = (SRC_GT_0)? COND_BR_ADD : RET_ADD;
+#endif
   
 #if 0
   unsigned int RET_ADD_BEQZ = (SRC1 == 0)? COND_BR_ADD : RET_ADD;
@@ -449,11 +472,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RES_LHU1 = (RES_LW & 0xFFFF0000) >> 16;
   unsigned int RES_LHU = (BIT_CHECK)? RES_LHU1 : RES_LHU0;
 
-
   bool RET_ADD_EXP = (J_COND | JR_COND | JAL_COND | BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND);
   RET_ADD = ((J_COND)? RET_ADD_J : 0x0) |/*J*/
 	    ((JR_COND)? RET_ADD_JR : 0x0) |/*JR*/
 	    ((JAL_COND)? RET_ADD_J : 0x0) |/*JAL*/
+	    ((BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND) ? RET_ADD_COND_BRANCH : 0x0) |
+#if 0
 	    ((BNE_COND)? RET_ADD_BNE : 0x0) |/*BNE*/
 	    ((BEQZ_COND)? RET_ADD_BEQZ : 0x0) |/*BEQZ*/
 	    ((BEQ_COND)? RET_ADD_BEQ : 0x0) |/*BEQ*/
@@ -461,9 +485,14 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	    ((BLTZ_COND)? RET_ADD_BLTZ : 0x0) |/*BLTZ*/
 	    ((BGEZ_COND)? RET_ADD_BGEZ : 0x0) |/*BGEZ*/
 	    ((BGTZ_COND)? RET_ADD_BGTZ : 0x0) |/*BGTZ*/
+#endif
 	    ((RET_ADD_EXP)? 0x0 : RET_ADD);
 
-  bool RESULT_EXP = (J_COND | JR_COND | SYS_COND | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | NOP_COND
+  bool RESULT_EXP = (J_COND | JR_COND
+#ifndef USE_SYS
+		    | SYS_COND 
+#endif
+		    | BNE_COND | BEQZ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND | NOP_COND
 #ifndef USE_MULT
 		    | MULT_COND
 #endif
@@ -485,7 +514,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((LB_COND)? (signed int) RES_LBU : 0x0) | /*LB*/
 	   ((LH_COND)? (signed int) RES_LHU : 0x0) | /*LH*/
 	   ((LHU_COND)? RES_LHU : 0x0) | /*LHU*/
-#if !defined(USE_ADDER) || !defined(USE_SUB) || !defined(USE_MULT) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER)
+#if !defined(USE_ADDER) || !defined(USE_SUB) || !defined(USE_MULT) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SET_LESS_THAN) || !defined (USE_SYS)
 	   ((SUBLEQ_COND)? RES_SUBLEQ : 0x0) |/*ADDU*/
 #endif
 #ifdef USE_ADDER
