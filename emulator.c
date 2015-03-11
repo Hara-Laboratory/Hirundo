@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed Mar 11 10:50:22 2015
+* Last Modified on : Wed Mar 11 16:41:49 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -17,14 +17,14 @@
 #include <stdbool.h>
 
 
-//#include "adpcm.h"
+#include "adpcm.h"
 //#include "bf.h"
 //#include "bs.h"
 //#include "bubble.h"
 //#include "crc.h"
 //#include "fibcall.h"
 //#include "gsm.h"
-#include "intmm.h"
+//#include "intmm.h"
 //#include "isort.h"
 //#include "jfdctint.h"
 //#include "matmul.h"
@@ -48,7 +48,7 @@ unsigned int OR (unsigned int, unsigned int);
 unsigned int AND (unsigned int, unsigned int);
 unsigned int XOR (unsigned int, unsigned int);
 long MULT (int, int);
-void subleq_machine(unsigned int prog_count);
+void subleq_machine(unsigned short prog_count);
 
 
 int main(int argc, char **argv){
@@ -202,6 +202,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   /*NOR*/
   unsigned int RES_NOR = ~RES_OR;
 
+  unsigned int RES_LOGIC = ((AND_COND | ANDI_COND) ? RES_AND : 0x0) |
+			   ((OR_COND | ORI_COND) ? RES_OR : 0x0) |
+			   ((XOR_COND | XORI_COND) ? RES_XOR : 0x0) |
+			   ((NOR_COND) ? RES_NOR : 0x0);
+
 //if (SUBU_COND) printf("SUB");
 
   bool SUBLEQ_COND = false 
@@ -222,6 +227,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifndef USE_SHIFTER
 		     | SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND
+#endif
+#ifndef USE_SYS
+		     | SYS_COND
+#endif
+#ifndef USE_SET_LESS_THAN
+		     | SLT_COND | SLTI_COND | SLTU_COND | SLTIU_COND
 #endif
 		     ; 
   
@@ -264,7 +275,26 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RES_ADDU = NEW_ADD (SRC1, ADD_INP);
 #endif  
 
-#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER)
+
+  int SLT_INP = (SLTI_COND) ? (signed short) *imm : SRC2;
+  unsigned int SLTU_INP = (SLTIU_COND) ? (unsigned short) *imm : SRC2;
+#ifdef	USE_SET_LESS_THAN
+  /*SLT*//*SLTI*/
+  int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;
+
+  /*SLTU*//*SLTIU*/
+  int RES_SLTU_I = ((unsigned int) SRC1 < SLTU_INP) ? 1 : 0;
+#if 0
+  if (SLT_COND) printf("SLT\n");
+  if (SLTI_COND) printf("SLTI\n");
+  if (SLTU_COND) printf("SLTU\n");
+  if (SLTIU_COND) printf("SLTIU\n");
+#endif
+#endif
+
+
+
+#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
   unsigned int RES_SUBLEQ = 0;
   unsigned int ROUTINE_ADD = 0x0
 #ifndef	USE_ADDER
@@ -287,8 +317,17 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 			     | ((SRLV_COND | SRL_COND) ? SRL_ROUTINE : 0x0)
 			     | ((SRAV_COND | SRA_COND) ? SRA_ROUTINE : 0x0)
 #endif
+#ifndef	USE_SYS
+			     | ((SYS_COND) ? SYS_ROUTINE : 0x0)
+#endif
+#ifndef USE_SET_LESS_THAN
+			     | ((SLT_COND | SLTI_COND) ? SLT_ROUTINE : 0x0)
+			     | ((SLTU_COND | SLTIU_COND) ? SLTU_ROUTINE : 0x0)
+#endif
 			     ;
 
+
+  int SUBLEQ_INP1 = ((SLTU_COND | SLTIU_COND) ? (unsigned int) SRC1 : SRC1);
 
   int SUBLEQ_INP2 = 0x0
 #ifndef	USE_ADDER
@@ -303,10 +342,20 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifndef	USE_SHIFTER
 		   | ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SHIFT_INP : 0x0)
 #endif
+#ifndef USE_SYS
+		   | ((SYS_COND) ? SRC2 : 0x0)
+#endif
+#ifndef	USE_SET_LESS_THAN
+		   | ((SLT_COND | SLTI_COND) ? SLT_INP : 0x0)
+		   | ((SLTU_COND | SLTIU_COND) ? SLTU_INP : 0x0)
+#endif
 		   ; 
 
   if (SUBLEQ_COND) {
+#if 0
     write_value (SRC1, SRC1_LOC);
+#endif
+    write_value (SUBLEQ_INP1, SRC1_LOC);
     write_value (SUBLEQ_INP2, SRC2_LOC);
 #if 0
     if (SRL_COND | SRLV_COND){
@@ -329,13 +378,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   }
 #endif
 
-  /*SLT*//*SLTI*/
-  int SLT_INP = (SLTI_COND) ? (signed short) *imm : SRC2;
-  int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;
-
-  /*SLTU*//*SLTIU*/
-  unsigned int SLTU_INP = (SLTIU_COND) ? (unsigned short) *imm : SRC2;
-  int RES_SLTU_I = ((unsigned int) SRC1 < SLTU_INP) ? 1 : 0;
 
   /*JR*/
   unsigned int RET_ADD_JR = NEW_ADD2 (SRC1, -1);
@@ -353,12 +395,22 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   //unsigned int RET_ADD_BNE = (SRC1 != SRC2) ? COND_BR_ADD : RET_ADD;
   //unsigned int RET_ADD_BEQ = (SRC1 == SRC2)? COND_BR_ADD : RET_ADD;
 
+  bool SRC_EQ_0 = (SRC1 == 0) ? true : false;
+  bool SRC_GT_0 = (SRC1 > 0) ? true : false;
+
+  unsigned int RET_ADD_BEQZ = (SRC_EQ_0)? COND_BR_ADD : RET_ADD;
+  unsigned int RET_ADD_BGEZ = (SRC_EQ_0 | SRC_GT_0)? COND_BR_ADD : RET_ADD;
+  unsigned int RET_ADD_BLEZ = (SRC_EQ_0 | !SRC_GT_0)? COND_BR_ADD : RET_ADD;
+  unsigned int RET_ADD_BLTZ = (!SRC_GT_0)? COND_BR_ADD : RET_ADD;
+  unsigned int RET_ADD_BGTZ = (SRC_GT_0)? COND_BR_ADD : RET_ADD;
+  
+#if 0
   unsigned int RET_ADD_BEQZ = (SRC1 == 0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BGEZ = (SRC1 >= 0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BLEZ = (SRC1 <= 0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BLTZ = (SRC1 < 0)? COND_BR_ADD : RET_ADD;
   unsigned int RET_ADD_BGTZ = (SRC1 > 0)? COND_BR_ADD : RET_ADD;
-
+#endif
   /*lui*/
   int RES_LUI = (*imm << 16) | 0x0000;
   
@@ -417,12 +469,17 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 		    );
 
+  RESULT = (AND_COND | ANDI_COND | OR_COND | ORI_COND | XOR_COND | XORI_COND | NOR_COND) ? RES_LOGIC : 0x0 |
+#if 0
   RESULT = ((AND_COND | ANDI_COND)? RES_AND : 0x0) | /*AND*/
 	   ((OR_COND | ORI_COND)? RES_OR : 0x0) | /*OR*/
 	   ((XOR_COND | XORI_COND)? RES_XOR : 0x0) | /*XOR*/
 	   ((NOR_COND)? RES_NOR : 0x0) | /*NOR*/
+#endif
+#ifdef USE_SET_LESS_THAN
 	   ((SLT_COND | SLTI_COND)? RES_SLT_I : 0x0) |/*SLT*//*SLTI*/
 	   ((SLTU_COND | SLTIU_COND)? RES_SLTU_I : 0x0) |/*SLTU*/
+#endif
 	   ((LW_COND)? RES_LW : 0x0) |/*LW*/
 	   ((LBU_COND)? RES_LBU : 0x0) | /*LBU*/
 	   ((LB_COND)? (signed int) RES_LBU : 0x0) | /*LB*/
@@ -575,8 +632,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 
   /*syscall*/
+#ifdef USE_SYS
   int SYSCALL_EXIT = get_value(2);
   *EMULATOR_STATUS = (SYS_COND & (SYSCALL_EXIT == 10)) ? FINISH : NORMAL;
+#else
+  *EMULATOR_STATUS = (SYS_COND & (RES_SUBLEQ == 10)) ? FINISH : NORMAL;
+#endif 
 
 #ifdef USE_MULT
   write_value (RES_MULT_LO, LO);
@@ -650,12 +711,12 @@ long MULT (int a, int b){
   return (a * b);
 }
 
-void subleq_machine(unsigned int prog_count) {
+void subleq_machine(unsigned short prog_count) {
   while(prog_count != 999) {
     //fprintf(stderr, "subleq: %d: ", prog_count);
-    unsigned int a = get_value (prog_count);
-    unsigned int b = get_value (prog_count + 0x1);
-    unsigned int c = get_value (prog_count + 0x2);
+    unsigned short a = get_value (prog_count);
+    unsigned short b = get_value (prog_count + 0x1);
+    unsigned short c = get_value (prog_count + 0x2);
     //fprintf(stderr, "%d, %d, %d:", a, b, c);
 
     signed int src1 = get_value (a);
@@ -665,6 +726,6 @@ void subleq_machine(unsigned int prog_count) {
     src2 = src2 - src1;
 
     write_value (src2, b);
-    prog_count = (src2 > 0) ? prog_count + 0x3 : c;
+    prog_count = 0x7FF & ((src2 > 0) ? prog_count + 0x3 : c);
   }
 }

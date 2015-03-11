@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Tue Mar 10 19:29:44 2015
+* Last Modified on : Wed Mar 11 16:42:07 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -24,6 +24,8 @@
 #define USE_MTLO
 #define USE_MTHI
 //#define USE_SHIFTER
+//#define USE_SYS
+#define USE_SET_LESS_THAN
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000
@@ -58,21 +60,24 @@ unsigned int TEMP7;
 #define SRC1_LOC	38//use in subleq machine 
 #define	SRC2_LOC	39//use in subleq machine
 
-#define ADD_ROUTINE	898
-#define MUL_ROUTINE	469
-#define	SUB_ROUTINE	256
-#define MFLO_ROUTINE	874
-#define MFHI_ROUTINE	886
-#define SLL_ROUTINE	436
-#define SRL_ROUTINE	274
-#define SRA_ROUTINE	346
-#define SLLV_ROUTINE	317
-#define SRLV_ROUTINE	317
-#define SRAV_ROUTINE	317
-#define XOR_ROUTINE	317
-#define NOR_ROUTINE	317
-#define LUI_ROUTINE	317
-#define SLT_ROUTINE	317
+#define ADD_ROUTINE	1030
+#define MUL_ROUTINE	601
+#define	SUB_ROUTINE	268
+#define MFLO_ROUTINE	1006
+#define MFHI_ROUTINE	1018
+#define SLL_ROUTINE	568
+#define SRL_ROUTINE	286
+#define SRA_ROUTINE	358
+#define SYS_ROUTINE	256
+#define SLT_ROUTINE	517
+#define	SLTU_ROUTINE	448
+
+#define SLLV_ROUTINE	0x0
+#define SRLV_ROUTINE	0x0
+#define SRAV_ROUTINE	0x0
+#define XOR_ROUTINE	0x0
+#define NOR_ROUTINE	0x0
+#define LUI_ROUTINE	0x0
 
 #define START_PC	700
 
