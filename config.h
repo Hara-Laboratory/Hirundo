@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Wed Mar 11 16:42:07 2015
+* Last Modified on : Wed Mar 11 18:39:05 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -25,7 +25,7 @@
 #define USE_MTHI
 //#define USE_SHIFTER
 //#define USE_SYS
-#define USE_SET_LESS_THAN
+//#define USE_SET_LESS_THAN
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000

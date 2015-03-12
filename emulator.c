@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed Mar 11 17:46:32 2015
+* Last Modified on : Wed Mar 11 18:43:34 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -17,14 +17,14 @@
 #include <stdbool.h>
 
 
-#include "adpcm.h"
+//#include "adpcm.h"
 //#include "bf.h"
 //#include "bs.h"
 //#include "bubble.h"
 //#include "crc.h"
 //#include "fibcall.h"
 //#include "gsm.h"
-//#include "intmm.h"
+#include "intmm.h"
 //#include "isort.h"
 //#include "jfdctint.h"
 //#include "matmul.h"
@@ -53,9 +53,6 @@ void subleq_machine(unsigned short prog_count);
 
 int main(int argc, char **argv){
   int i;
-  for (i = 0; i < 15; i++) {
-    write_value(ADD[i], ADD_ROUTINE + i);
-  }
 
   unsigned int prog_count = 0x2000;
   unsigned int STATUS = emulator(prog_count >> 2);
@@ -106,9 +103,6 @@ uint emulator (unsigned int prog_count){
   //unsigned int test = 0;
   unsigned int i = 1;
 
-  //TEMP4 = Z;
-  write_value(0, Z);
-  
   while (EMULATOR_STATUS == NORMAL){
     /*fetch instructions*/
     printf("%d: %3.3x, INST: %8.8x", i, prog_count << 2, get_value(prog_count));
@@ -116,7 +110,7 @@ uint emulator (unsigned int prog_count){
     prog_count_1 = prog_count_1 + 1;
     prog_count = prog_count_1;
     exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &EMULATOR_STATUS);
-    i++;
+    //i++;
   }
   prog_count_1 = prog_count_1 & 0x1; 
   return prog_count_1;//EMULATOR_STATUS;
