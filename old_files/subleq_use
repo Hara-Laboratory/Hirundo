@@ -1,0 +1,48 @@
+SLT:(a,b,1)->SUBLEQ:(a,b,1)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLTI:(3,b,1)->SUBLEQ:(3,b,1)
+SLT:(0,b,1)->SUBLEQ:(0,b,1)
+SLT:(0,a,1)->SUBLEQ:(0,a,1)
+SLT:(24,0,0)->SUBLEQ:(24,0,0)
+SLTI:(4,b,1)->SUBLEQ:(4,b,1)
+SLT:(0,9,1)->SUBLEQ:(0,9,1)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLTI:(5,b,1)->SUBLEQ:(5,b,1)
+SLT:(0,8,1)->SUBLEQ:(0,8,1)
+SLT:(24,0,0)->SUBLEQ:(24,0,0)
+SLTI:(6,b,1)->SUBLEQ:(6,b,1)
+SLT:(0,7,1)->SUBLEQ:(0,7,1)
+SLT:(26,0,0)->SUBLEQ:(26,0,0)
+SLTI:(7,b,1)->SUBLEQ:(7,b,1)
+SLT:(0,6,1)->SUBLEQ:(0,6,1)
+SLT:(178,0,0)->SUBLEQ:(178,0,0)
+SLTI:(8,b,1)->SUBLEQ:(8,b,1)
+SLT:(0,5,1)->SUBLEQ:(0,5,1)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLTI:(9,b,1)->SUBLEQ:(9,b,1)
+SLT:(0,4,1)->SUBLEQ:(0,4,1)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLTI:(a,b,1)->SUBLEQ:(a,b,1)
+SLT:(a,3,0)->SUBLEQ:(a,3,0)
+SLTI:(b,b,0)->SUBLEQ:(b,b,0)
+SLT:(5,0,0)->SUBLEQ:(5,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,0,0)->SUBLEQ:(0,0,0)
+SLT:(0,3,1)->SUBLEQ:(0,3,1)
+SLT:(3,2,0)->SUBLEQ:(3,2,0)
+========
+REG FILE
+========
+0	0	10	3	
+0	1	-738197508	-738115632	
+11	11	0	0	
+0	0	0	0	
+0	0	0	0	
+0	0	0	0	
+0	0	0	0	
+-1073741824	-738197504	0	2063	
