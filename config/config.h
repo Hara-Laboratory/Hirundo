@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon 20 Apr 2015 01:45:45 PM JST
+* Last Modified on : Mon 20 Apr 2015 04:49:12 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -97,6 +97,10 @@ typedef	unsigned int	uint;
 typedef	unsigned char	uchar;
 typedef	unsigned short	ushort;
 typedef	unsigned long	ulong;
+typedef	signed int	sint;
+typedef	signed char	schar;
+typedef	signed short	sshort;
+typedef	signed long	slong;
 
 
 

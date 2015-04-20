@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon 20 Apr 2015 01:45:20 PM JST
+* Last Modified on : Mon 20 Apr 2015 04:51:09 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -42,28 +42,28 @@ int store = 0;
 int branch = 0;
 #endif
 
-uint emulator (unsigned int);
-void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, unsigned int*);
-unsigned int get_value(unsigned int);
-void write_value(int, unsigned int);
+uint emulator (uint);
+void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
+uint get_value(uint);
+void write_value(int, uint);
 //void add ();
 int NEW_ADD(int, int);
 int NEW_ADD2(int, int);
 int NEW_ADD3(int, int);
-unsigned int SUB (unsigned int, unsigned int);
+uint SUB (uint, uint);
 int SLL (int, int);
 int SRL (int, int);
 int SRA (int, int);
-unsigned int OR (unsigned int, unsigned int);
-unsigned int AND (unsigned int, unsigned int);
-unsigned int XOR (unsigned int, unsigned int);
+uint OR (uint, uint);
+uint AND (uint, uint);
+uint XOR (uint, uint);
 int64_t MULT (int, int);
-void subleq_machine(unsigned short prog_count);
+void subleq_machine(ushort prog_count);
 
 
 int main(int argc, char **argv){
-  unsigned int prog_count = 0x2000;
-  unsigned int STATUS = emulator(prog_count >> 2);
+  uint prog_count = 0x2000;
+  uint STATUS = emulator(prog_count >> 2);
 #ifdef PRINT
   int i;
   printf("========\nREG FILE\n========\n");
@@ -107,13 +107,10 @@ int main(int argc, char **argv){
 }
 
 
-uint emulator (unsigned int prog_count){
+uint emulator (uint prog_count){
   uint EMULATOR_STATUS = NORMAL;
-  unsigned int prog_count_1 = prog_count;
-  unsigned int instruction;
-
-  //write_value(0x000C000, 28);
-  //write_value(0x000D400, 29);
+  uint prog_count_1 = prog_count;
+  uint instruction;
 
   uchar opcode;
   uchar funct;
@@ -124,8 +121,7 @@ uint emulator (unsigned int prog_count){
   uchar sa;
 
 #ifdef PRINT
-  //unsigned int test = 0;
-  unsigned int i = 0;
+  uint i = 0;
 #endif
 
   while (EMULATOR_STATUS == NORMAL){
@@ -145,7 +141,7 @@ uint emulator (unsigned int prog_count){
   return prog_count_1;//EMULATOR_STATUS;
 }
 
-void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, uchar *rd, ushort *imm, uchar *sa, uint *prog_count, unsigned int *EMULATOR_STATUS){
+void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, uchar *rd, ushort *imm, uchar *sa, uint *prog_count, uint *EMULATOR_STATUS){
   /*decode instructions*/
   *opcode = instruction >> 26;
   *rs = (instruction >> 21) & 0X0000001F;
@@ -158,11 +154,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   int SRC1 = get_value (*rs);
   int SRC2 = get_value (*rt);
-  //int SRC3 = get_value (*rd);
   int RESULT = 0;//NEW_ADD (SRC1, SRC2); /*addu*/
-  unsigned int RET_ADD = *prog_count;// = *prog_count;
-  //unsigned int ST_LOC = TEMP_REG;
-  unsigned int WB_LOC = TEMP_REG;
+  uint RET_ADD = *prog_count;// = *prog_count;
+  uint WB_LOC = TEMP_REG;
 
   bool R_TYPE = (*opcode == 0x00);
   bool NOP_COND = (instruction == 0x0);
@@ -230,17 +224,17 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   /*AND ANDI OR ORI XOR XORI*/
   bool LOGIC_IMM_COND = ANDI_COND | ORI_COND | XORI_COND; 
 
-  unsigned int LOGIC_IMM_INP = (LOGIC_IMM_COND) ? (unsigned short) *imm : SRC2;
-  unsigned int RES_AND = AND (SRC1, LOGIC_IMM_INP);
-  unsigned int RES_OR = OR (SRC1, LOGIC_IMM_INP);
-  unsigned int RES_XOR = XOR (SRC1, LOGIC_IMM_INP);
+  uint LOGIC_IMM_INP = (LOGIC_IMM_COND) ? (ushort) *imm : SRC2;
+  uint RES_AND = AND (SRC1, LOGIC_IMM_INP);
+  uint RES_OR = OR (SRC1, LOGIC_IMM_INP);
+  uint RES_XOR = XOR (SRC1, LOGIC_IMM_INP);
   /*NOR*/
-  unsigned int RES_NOR = ~RES_OR;
+  uint RES_NOR = ~RES_OR;
 
-  unsigned int RES_LOGIC = ((AND_COND | ANDI_COND) ? RES_AND : 0x0) |
-			   ((OR_COND | ORI_COND) ? RES_OR : 0x0) |
-			   ((XOR_COND | XORI_COND) ? RES_XOR : 0x0) |
-			   ((NOR_COND) ? RES_NOR : 0x0);
+  uint RES_LOGIC = ((AND_COND | ANDI_COND) ? RES_AND : 0x0) |
+		   ((OR_COND | ORI_COND) ? RES_OR : 0x0) |
+		   ((XOR_COND | XORI_COND) ? RES_XOR : 0x0) |
+		   ((NOR_COND) ? RES_NOR : 0x0);
 
   bool SUBLEQ_COND = false 
 #ifndef USE_ADDER
@@ -271,10 +265,10 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   
   /*MFHI*//**opcode == 0x00 & *funct == 0x10*/
 #ifdef USE_MFHI
-  unsigned int RES_MFHI = get_value (HI);
+  uint RES_MFHI = get_value (HI);
 #endif
 #ifdef USE_MFLO
-  unsigned int RES_MFLO = get_value (LO);
+  uint RES_MFLO = get_value (LO);
 #endif
 
 
@@ -288,7 +282,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 #ifdef USE_SUB  
   /*SUBU*/ /**opcode == 0x00 & *funct == 0x23*/
-  unsigned int RES_SUBU = SUB ((unsigned int) SRC1, (unsigned int) SRC2);
+  uint RES_SUBU = SUB ((uint) SRC1, (uint) SRC2);
 #endif
 
   /*SRA*//*SRAV*//*SLL*//*SLLV*//*SRL*//*SRLV*/
@@ -299,27 +293,25 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   int RES_SRLV = SRL (SRC2, SHIFT_INP);
 #endif
 
-  int ADD_INP = (ADDIU_COND)? (signed short)*imm : SRC2;
+  int ADD_INP = (ADDIU_COND)? (sshort)*imm : SRC2;
 #ifdef USE_ADDER
-  /*addiu*/
-  //int RES_ADDIU = NEW_ADD (SRC1, (signed short) *imm);
   /*addu addiu*/
-  unsigned int RES_ADDU = NEW_ADD (SRC1, ADD_INP);
+  uint RES_ADDU = NEW_ADD (SRC1, ADD_INP);
 #endif  
 
-  int SLT_INP = (SLTI_COND | SLTIU_COND) ? (signed short) *imm : SRC2;
+  int SLT_INP = (SLTI_COND | SLTIU_COND) ? (sshort) *imm : SRC2;
 #ifdef	USE_SET_LESS_THAN
   /*SLT*//*SLTI*/
   int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;
   /*SLTU*//*SLTIU*/
-  int RES_SLTU_I = ((unsigned int) SRC1 < (unsigned int) SLT_INP) ? 1 : 0;
+  int RES_SLTU_I = ((uint) SRC1 < (uint) SLT_INP) ? 1 : 0;
 #endif
 
 
 
 #if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
-  unsigned int RES_SUBLEQ = 0;
-  unsigned int ROUTINE_ADD = 0x0
+  uint RES_SUBLEQ = 0;
+  uint ROUTINE_ADD = 0x0
 #ifndef	USE_ADDER
 			     | ((ADDU_COND | ADDIU_COND) ? ADD_ROUTINE : 0x0)
 #endif
@@ -370,22 +362,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 		   ; 
 
-#if 0
-#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
-  SUBLEQ_INP1 = ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SRC2 : SRC1);
-#endif
-#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
-  SUBLEQ_INP1 = SRC1;
-#endif
-#endif
-
-#if 0  
-  int SUBLEQ_INP1 = 0x0
-#ifndef USE_SHIFTER
-		   | ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SRC2 : 0x0)
-#endif
-		   ;
-#endif
 
   int SUBLEQ_INP2 = 0x0
 #ifndef	USE_ADDER
@@ -467,28 +443,28 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     printf("SLT: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
   }
   else if (SLTU_COND){
-    printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((unsigned int) SRC1 < (unsigned int) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+    printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((uint) SRC1 < (uint) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
   }
   else if (SLTI_COND){
     printf("SLTI: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
   }
   else if (SLTIU_COND){
-    printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((unsigned int) SRC1 < (unsigned int) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+    printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((uint) SRC1 < (uint) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
   } 
 #endif
 
 
 
   /*JR*/
-  unsigned int RET_ADD_JR = NEW_ADD2 (SRC1, -1);
+  uint RET_ADD_JR = NEW_ADD2 (SRC1, -1);
 
   /*jal, j*/
-  unsigned int RES_JAL = NEW_ADD2 (RET_ADD, 1);
-  unsigned int RET_ADD_J = NEW_ADD2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
+  uint RES_JAL = NEW_ADD2 (RET_ADD, 1);
+  uint RET_ADD_J = NEW_ADD2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
 
 
   /*BNE BEQZ BLEZ*/
-  unsigned int COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (signed short)*imm), -1);
+  uint COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (sshort)*imm), -1);
   bool CHECK_EQ = (SRC1 == SRC2)? true : false;
   bool SRC_EQ_0 = (SRC1 == 0) ? true : false;
   bool SRC_GT_0 = (SRC1 > 0) ? true : false;
@@ -503,74 +479,45 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   bool BR_COND_ALL = (BNE_COND_TEMP | BEQ_COND_TEMP | BEQZ_COND_TEMP | BGEZ_COND_TEMP | BLEZ_COND_TEMP | BLTZ_COND_TEMP | BGTZ_COND_TEMP);
 
-  unsigned int RET_ADD_COND_BRANCH = (BR_COND_ALL) ? COND_BR_ADD : RET_ADD;
+  uint RET_ADD_COND_BRANCH = (BR_COND_ALL) ? COND_BR_ADD : RET_ADD;
 
-
-
-#if 0
-  /*BNE BEQZ BLEZ*/
-  unsigned int COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (signed short)*imm), -1);
-  bool CHECK_EQ = (SRC1 == SRC2)? true : false;
-  unsigned int RET_ADD_BNE = (!CHECK_EQ) ? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BEQ = (CHECK_EQ) ? COND_BR_ADD : RET_ADD;
-
-  //unsigned int RET_ADD_BNE = (SRC1 != SRC2) ? COND_BR_ADD : RET_ADD;
-  //unsigned int RET_ADD_BEQ = (SRC1 == SRC2)? COND_BR_ADD : RET_ADD;
-
-  bool SRC_EQ_0 = (SRC1 == 0) ? true : false;
-  bool SRC_GT_0 = (SRC1 > 0) ? true : false;
-
-  unsigned int RET_ADD_BEQZ = (SRC_EQ_0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BGEZ = (SRC_EQ_0 | SRC_GT_0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BLEZ = (SRC_EQ_0 | !SRC_GT_0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BLTZ = (!SRC_GT_0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BGTZ = (SRC_GT_0)? COND_BR_ADD : RET_ADD;
-#endif
-  
-#if 0
-  unsigned int RET_ADD_BEQZ = (SRC1 == 0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BGEZ = (SRC1 >= 0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BLEZ = (SRC1 <= 0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BLTZ = (SRC1 < 0)? COND_BR_ADD : RET_ADD;
-  unsigned int RET_ADD_BGTZ = (SRC1 > 0)? COND_BR_ADD : RET_ADD;
-#endif
   /*lui*/
   int RES_LUI = (*imm << 16) | 0x0000;
   
-  int MEM_ADD_TEMP = NEW_ADD3 (SRC1, (signed short) *imm);
+  int MEM_ADD_TEMP = NEW_ADD3 (SRC1, (sshort) *imm);
   /*sw*/
-  unsigned int MEM_ADD = (MEM_ADD_TEMP >> 2);
+  uint MEM_ADD = (MEM_ADD_TEMP >> 2);
   int RES_SW = SRC2;
   /*LW*/
   int RES_LW = get_value(MEM_ADD);//SRC2;
   /*SB*/
-  unsigned char BYTE_CHECK = MEM_ADD_TEMP & 0x2;
+  uchar BYTE_CHECK = MEM_ADD_TEMP & 0x2;
 
-  unsigned int RES_SB0 = (RES_LW & 0xFFFFFF00) | (0xFF & (SRC2 << 0));
-  unsigned int RES_SB1 = (RES_LW & 0xFFFF00FF) | (0xFF00 & (SRC2 << 8));
-  unsigned int RES_SB2 = (RES_LW & 0xFF00FFFF) | (0xFF0000 & (SRC2 << 16));
-  unsigned int RES_SB3 = (RES_LW & 0x00FFFFFF) | (0xFF000000 & (SRC2 << 24));
+  uint RES_SB0 = (RES_LW & 0xFFFFFF00) | (0xFF & (SRC2 << 0));
+  uint RES_SB1 = (RES_LW & 0xFFFF00FF) | (0xFF00 & (SRC2 << 8));
+  uint RES_SB2 = (RES_LW & 0xFF00FFFF) | (0xFF0000 & (SRC2 << 16));
+  uint RES_SB3 = (RES_LW & 0x00FFFFFF) | (0xFF000000 & (SRC2 << 24));
 
-  unsigned int RES_SB = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_SB3 : RES_SB2) : ((BYTE_CHECK & 0x1)? RES_SB1 : RES_SB0);
+  uint RES_SB = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_SB3 : RES_SB2) : ((BYTE_CHECK & 0x1)? RES_SB1 : RES_SB0);
 
   /*LBU, LB*/
-  unsigned int RES_LBU0 = (RES_LW & 0xFF) >> 0;
-  unsigned int RES_LBU1 = (RES_LW & 0xFF00) >> 8;
-  unsigned int RES_LBU2 = (RES_LW & 0xFF0000) >> 16;
-  unsigned int RES_LBU3 = (RES_LW & 0xFF000000) >> 24;
+  uint RES_LBU0 = (RES_LW & 0xFF) >> 0;
+  uint RES_LBU1 = (RES_LW & 0xFF00) >> 8;
+  uint RES_LBU2 = (RES_LW & 0xFF0000) >> 16;
+  uint RES_LBU3 = (RES_LW & 0xFF000000) >> 24;
 
-  unsigned int RES_LBU = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_LBU3 : RES_LBU2) : ((BYTE_CHECK & 0x1)? RES_LBU1 : RES_LBU0);
+  uint RES_LBU = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_LBU3 : RES_LBU2) : ((BYTE_CHECK & 0x1)? RES_LBU1 : RES_LBU0);
 
   /*SH*/
-  unsigned char BIT_CHECK = MEM_ADD_TEMP & 0x1;
-  unsigned int RES_SH0 = (RES_LW & 0xFFFF0000) | (0xFFFF & (SRC2 << 0));
-  unsigned int RES_SH1 = (RES_LW & 0x0000FFFF) | (0xFFFF0000 & (SRC2 << 16));
-  unsigned int RES_SH = (BIT_CHECK)? RES_SH1 : RES_SH0;
+  uchar BIT_CHECK = MEM_ADD_TEMP & 0x1;
+  uint RES_SH0 = (RES_LW & 0xFFFF0000) | (0xFFFF & (SRC2 << 0));
+  uint RES_SH1 = (RES_LW & 0x0000FFFF) | (0xFFFF0000 & (SRC2 << 16));
+  uint RES_SH = (BIT_CHECK)? RES_SH1 : RES_SH0;
 
   /*LHU, LH*/
-  unsigned int RES_LHU0 = (RES_LW & 0xFFFF);
-  unsigned int RES_LHU1 = (RES_LW & 0xFFFF0000) >> 16;
-  unsigned int RES_LHU = (BIT_CHECK)? RES_LHU1 : RES_LHU0;
+  uint RES_LHU0 = (RES_LW & 0xFFFF);
+  uint RES_LHU1 = (RES_LW & 0xFFFF0000) >> 16;
+  uint RES_LHU = (BIT_CHECK)? RES_LHU1 : RES_LHU0;
 
   bool RET_ADD_EXP = (J_COND | JR_COND | JAL_COND | BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND);
   RET_ADD = ((J_COND)? RET_ADD_J : 0x0) |/*J*/
@@ -611,8 +558,8 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 	   ((LW_COND)? RES_LW : 0x0) |/*LW*/
 	   ((LBU_COND)? RES_LBU : 0x0) | /*LBU*/
-	   ((LB_COND)? (signed int) RES_LBU : 0x0) | /*LB*/
-	   ((LH_COND)? (signed int) RES_LHU : 0x0) | /*LH*/
+	   ((LB_COND)? (sint) RES_LBU : 0x0) | /*LB*/
+	   ((LH_COND)? (sint) RES_LHU : 0x0) | /*LH*/
 	   ((LHU_COND)? RES_LHU : 0x0) | /*LHU*/
 #if !defined(USE_ADDER) || !defined(USE_SUB) || !defined(USE_MULT) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SET_LESS_THAN) || !defined (USE_SYS)
 	   ((SUBLEQ_COND)? RES_SUBLEQ : 0x0) |/*ADDU*/
@@ -665,104 +612,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 	   ((JAL_COND)? 31 : 0x0);/*JAL*/
 
-
-
-#if 0
-  WB_LOC = ((SLL_COND)? *rd : 0x0) | /*SLL*/
-	   ((SLLV_COND)? *rd : 0x0) | /*SLLV*/
-	   ((SRA_COND)? *rd : 0x0) | /*SRA*/
-	   ((SRAV_COND)? *rd : 0x0) | /*SRAV*/
-	   ((SRL_COND)? *rd : 0x0) | /*SRL*/
-	   ((SRLV_COND)? *rd : 0x0) | /*SRLV*/
-	   ((AND_COND)? *rd : 0x0) | /*AND*/
-	   ((OR_COND)? *rd : 0x0) | /*OR*/
-	   ((XOR_COND)? *rd : 0x0) | /*XOR*/
-	   ((NOR_COND)? *rd : 0x0) | /*NOR*/
-	   ((SLT_COND)? *rd : 0x0) | /*SLT*/
-	   ((SLTU_COND)? *rd : 0x0) | /*SLTU*/
-	   ((J_COND)? TEMP_REG : 0x0) | /*J*/
-	   ((BEQZ_COND)? TEMP_REG : 0x0) | /*BEQZ*/
-	   ((SLTI_COND)? *rt : 0x0) | /*SLTI*/
-	   ((SLTIU_COND)? *rt : 0x0) | /*SLTIU*/
-	   ((LW_COND)? *rt : 0x0) | /*LW*/
-	   ((LBU_COND)? *rt : 0x0) | /*LBU*/
-	   ((LB_COND)? *rt : 0x0) | /*LB*/
-	   ((LH_COND)? *rt : 0x0) | /*LH*/
-	   ((LHU_COND)? *rt : 0x0) | /*LHU*/
-	   ((ORI_COND)? *rt : 0x0) | /*ORI*/
-	   ((ANDI_COND)? *rt : 0x0) | /*ANDI*/
-	   ((XORI_COND)? *rt : 0x0) | /*XORI*/
-	   ((JR_COND)? TEMP_REG : 0x0) | /*JR*/
-	   ((SYS_COND)? TEMP_REG : 0x0) | /*SYSCALL*/
-	   ((ADDU_COND)? *rd : 0x0) | /*ADDU*/
-	   ((SUBU_COND)? *rd : 0x0) | /*SUBU*/
-	   ((MULT_COND)? HI : 0x0) | /*MULT*/
-	   ((MFHI_COND)? *rd : 0x0) | /*MFHI*/
-	   ((MFLO_COND)? *rd : 0x0) | /*MFLO*/
-	   ((JAL_COND)? 31 : 0x0) | /*JAL*/
-	   ((BNE_COND)? TEMP_REG : 0x0) | /*BNE*/
-	   ((BEQZ_COND)? TEMP_REG : 0x0) | /*BEQZ*/
-	   ((BLEZ_COND)? TEMP_REG : 0x0) | /*BLEZ*/
-	   ((BLTZ_COND)? TEMP_REG : 0x0) | /*BLTZ*/
-	   ((BGEZ_COND)? TEMP_REG : 0x0) | /*BGEZ*/
-	   ((BGTZ_COND)? TEMP_REG : 0x0) | /*BGTZ*/
-	   ((ADDIU_COND)? *rt : 0x0) | /*ADDIU*/
-	   ((LUI_COND)? *rt : 0x0) | /*LUI*/
-	   ((SW_COND)? MEM_ADD : 0x0) | /*SW*/
-	   ((SB_COND)? MEM_ADD : 0x0) | /*SB*/
-	   ((SH_COND)? MEM_ADD : 0x0) | /*SH*/
-	   ((NOP_COND)? TEMP_REG : 0x0); /*NOP*/
-#endif
-
-
-
-#if 0
-  WB_LOC = ((SLL_COND)? *rd : 0x0) | /*SLL*/
-	   ((*opcode == 0x00 & *funct == 0x04)? *rd : 0x0) | /*SLLV*/
-	   ((*opcode == 0x00 & *funct == 0x03)? *rd : 0x0) | /*SRA*/
-	   ((*opcode == 0x00 & *funct == 0x07)? *rd : 0x0) | /*SRAV*/
-	   ((*opcode == 0x00 & *funct == 0x02)? *rd : 0x0) | /*SRL*/
-	   ((*opcode == 0x00 & *funct == 0x06)? *rd : 0x0) | /*SRLV*/
-	   ((*opcode == 0x00 & *funct == 0x24)? *rd : 0x0) | /*AND*/
-	   ((*opcode == 0x00 & *funct == 0x25)? *rd : 0x0) | /*OR*/
-	   ((*opcode == 0x00 & *funct == 0x26)? *rd : 0x0) | /*XOR*/
-	   ((*opcode == 0x00 & *funct == 0x27)? *rd : 0x0) | /*NOR*/
-	   ((*opcode == 0x00 & *funct == 0x2A)? *rd : 0x0) | /*SLT*/
-	   ((*opcode == 0x00 & *funct == 0x2B)? *rd : 0x0) | /*SLTU*/
-	   ((*opcode == 0x02)? TEMP_REG : 0x0) | /*J*/
-	   ((*opcode == 0x04)? TEMP_REG : 0x0) | /*BEQZ*/
-	   ((*opcode == 0x0A)? *rt : 0x0) | /*SLTI*/
-	   ((*opcode == 0x0B)? *rt : 0x0) | /*SLTIU*/
-	   ((*opcode == 0x23)? *rt : 0x0) | /*LW*/
-	   ((*opcode == 0x24)? *rt : 0x0) | /*LBU*/
-	   ((*opcode == 0x20)? *rt : 0x0) | /*LB*/
-	   ((*opcode == 0x21)? *rt : 0x0) | /*LH*/
-	   ((*opcode == 0x25)? *rt : 0x0) | /*LHU*/
-	   ((*opcode == 0x0D)? *rt : 0x0) | /*ORI*/
-	   ((*opcode == 0x0C)? *rt : 0x0) | /*ANDI*/
-	   ((*opcode == 0x0E)? *rt : 0x0) | /*XORI*/
-	   ((*opcode == 0x00 & *funct == 0x08)? TEMP_REG : 0x0) | /*JR*/
-	   ((*opcode == 0x00 & *funct == 0x0C)? TEMP_REG : 0x0) | /*SYSCALL*/
-	   ((*opcode == 0x00 & *funct == 0x21)? *rd : 0x0) | /*ADDU*/
-	   ((*opcode == 0x00 & *funct == 0x23)? *rd : 0x0) | /*SUBU*/
-	   ((*opcode == 0x00 & *funct == 0x18)? HI : 0x0) | /*MULT*/
-	   ((*opcode == 0x00 & *funct == 0x10)? *rd : 0x0) | /*MFHI*/
-	   ((*opcode == 0x00 & *funct == 0x12)? *rd : 0x0) | /*MFLO*/
-	   ((*opcode == 0x03)? 31 : 0x0) | /*JAL*/
-	   ((*opcode == 0x05)? TEMP_REG : 0x0) | /*BNE*/
-	   ((*opcode == 0x04)? TEMP_REG : 0x0) | /*BEQZ*/
-	   ((*opcode == 0x06)? TEMP_REG : 0x0) | /*BLEZ*/
-	   ((*opcode == 0x01 & *rt == 0x0)? TEMP_REG : 0x0) | /*BLTZ*/
-	   ((*opcode == 0x01 & *rt == 0x1)? TEMP_REG : 0x0) | /*BGEZ*/
-	   ((*opcode == 0x07)? TEMP_REG : 0x0) | /*BGTZ*/
-	   ((*opcode == 0x09)? *rt : 0x0) | /*ADDIU*/
-	   ((*opcode == 0x0F)? *rt : 0x0) | /*LUI*/
-	   ((*opcode == 0x2B)? MEM_ADD : 0x0) | /*SW*/
-	   ((*opcode == 0x28)? MEM_ADD : 0x0) | /*SB*/
-	   ((*opcode == 0x29)? MEM_ADD : 0x0) | /*SH*/
-	   ((NOP_COND)? TEMP_REG : 0x0); /*NOP*/
-#endif
-
   /*syscall*/
 #ifdef USE_SYS
   int SYSCALL_EXIT = get_value(2);
@@ -787,11 +636,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 }
 
 
-unsigned int get_value(unsigned int location){
+uint get_value(uint location){
   return MEM[location];
 }
 
-void write_value(int value, unsigned int location){
+void write_value(int value, uint location){
   MEM[location] = value;
 }
 
@@ -812,13 +661,13 @@ int NEW_ADD3 (int a, int b){
   return (a+b) & 0xFFFF;
 }
 
-unsigned int SUB (unsigned int a, unsigned int b){
+uint SUB (uint a, uint b){
   return (a - b);
 }
 
 int SRA (int a, int b){
-  unsigned char check = a >> 31;
-  unsigned int TEMP = (check == 1)? (a >> b) | (0xFFFFFFFF << (32 -a)): (a >> b);
+  uchar check = a >> 31;
+  uint TEMP = (check == 1)? (a >> b) | (0xFFFFFFFF << (32 -a)): (a >> b);
   return TEMP;
 }
 
@@ -830,31 +679,31 @@ int SLL (int a, int b){
   return (a << b);
 }
 
-unsigned int OR (unsigned int a, unsigned int b){
+uint OR (uint a, uint b){
   return (a | b);
 }
 
-unsigned int XOR (unsigned int a, unsigned int b){
+uint XOR (uint a, uint b){
   return (a ^ b);
 }
 
-unsigned int AND (unsigned int a, unsigned int b){
+uint AND (uint a, uint b){
   return (a & b);
 }
 int64_t MULT (int a, int b){
   return (a * b);
 }
 
-void subleq_machine(unsigned short prog_count) {
+void subleq_machine(ushort prog_count) {
   while(prog_count != 999) {
     //fprintf(stderr, "subleq: %d: ", prog_count);
-    unsigned short a = get_value (prog_count);
-    unsigned short b = get_value (prog_count + 0x1);
-    unsigned short c = get_value (prog_count + 0x2);
+    ushort a = get_value (prog_count);
+    ushort b = get_value (prog_count + 0x1);
+    ushort c = get_value (prog_count + 0x2);
     //fprintf(stderr, "%d, %d, %d:", a, b, c);
 
-    signed int src1 = get_value (a);
-    signed int src2 = get_value (b);
+    sint src1 = get_value (a);
+    sint src2 = get_value (b);
 
     //fprintf(stderr, "subleq: %d, %d, %d: %d, %d -> %d\n", a, b, c, src1, src2, src2 - src1);
     src2 = src2 - src1;
