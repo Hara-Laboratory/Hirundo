@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed Mar 11 18:43:34 2015
+* Last Modified on : Wed Mar 25 16:18:51 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,7 +16,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-
 //#include "adpcm.h"
 //#include "bf.h"
 //#include "bs.h"
@@ -24,39 +23,49 @@
 //#include "crc.h"
 //#include "fibcall.h"
 //#include "gsm.h"
-#include "intmm.h"
-//#include "isort.h"
+//#include "intmm.h"
+//#include "insertsort.h"
 //#include "jfdctint.h"
-//#include "matmul.h"
-//#include "mpeg.h"
-//#include "string_search.h"
+//#include "mpeg2.h"
+#include "vec_add.h"
 
+#ifdef PROFILE
+int add = 0;
+int sub = 0;
+int shift = 0;
+int logic = 0;
+int mult = 0;
+int slt_u = 0;
+int jump = 0;
+int load = 0;
+int store = 0;
+int branch = 0;
+#endif
 
 uint emulator (unsigned int);
 void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, unsigned int*);
 unsigned int get_value(unsigned int);
 void write_value(int, unsigned int);
-void add ();
+//void add ();
 int NEW_ADD(int, int);
 int NEW_ADD2(int, int);
 int NEW_ADD3(int, int);
-int SUB (int, int);
+unsigned int SUB (unsigned int, unsigned int);
 int SLL (int, int);
 int SRL (int, int);
 int SRA (int, int);
 unsigned int OR (unsigned int, unsigned int);
 unsigned int AND (unsigned int, unsigned int);
 unsigned int XOR (unsigned int, unsigned int);
-long MULT (int, int);
+int64_t MULT (int, int);
 void subleq_machine(unsigned short prog_count);
 
 
 int main(int argc, char **argv){
-  int i;
-
   unsigned int prog_count = 0x2000;
   unsigned int STATUS = emulator(prog_count >> 2);
-#if 1
+#ifdef PRINT
+  int i;
   printf("========\nREG FILE\n========\n");
   for (i = 0; i < 32; i++){
     printf("%d\t",get_value(i));
@@ -64,6 +73,21 @@ int main(int argc, char **argv){
       printf("\n");
   }
 #endif
+
+#ifdef PROFILE
+  printf("Addition: %d\n", add);
+  printf("Subtraction: %d\n", sub);
+  printf("All shift: %d\n", shift);
+  printf("All logic: %d\n", logic);
+  printf("All multiplication: %d\n", mult);
+  printf("All slt and sltu: %d\n", slt_u);
+  printf("All jump: %d\n", jump);
+  printf("All load from memory: %d\n", load);
+  printf("All store to memory: %d\n", store);
+  printf("All conditional branch: %d\n", branch);
+#endif
+
+
 #if 0
   printf("=========\nPRINT MEM\n=========\n");
   for (i = 0; i < 15; i++)
@@ -80,7 +104,6 @@ int main(int argc, char **argv){
   printf("\n");
 #endif
   return STATUS;
-  //return 0;
 }
 
 
@@ -89,8 +112,8 @@ uint emulator (unsigned int prog_count){
   unsigned int prog_count_1 = prog_count;
   unsigned int instruction;
 
-  write_value(0x000C000, 28);
-  write_value(0x000D400, 29);
+  //write_value(0x000C000, 28);
+  //write_value(0x000D400, 29);
 
   uchar opcode;
   uchar funct;
@@ -100,17 +123,23 @@ uint emulator (unsigned int prog_count){
   ushort imm;
   uchar sa;
 
+#ifdef PRINT
   //unsigned int test = 0;
-  unsigned int i = 1;
+  unsigned int i = 0;
+#endif
 
   while (EMULATOR_STATUS == NORMAL){
     /*fetch instructions*/
+#ifdef PRINT
     printf("%d: %3.3x, INST: %8.8x", i, prog_count << 2, get_value(prog_count));
+#endif
     instruction = get_value (prog_count);
     prog_count_1 = prog_count_1 + 1;
     prog_count = prog_count_1;
     exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &EMULATOR_STATUS);
-    //i++;
+#ifdef PRINT
+    i++;
+#endif
   }
   prog_count_1 = prog_count_1 & 0x1; 
   return prog_count_1;//EMULATOR_STATUS;
@@ -185,6 +214,18 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   bool SW_COND = (*opcode == 0x2B);
 
 
+#ifdef PROFILE
+  if (ADDU_COND | ADDIU_COND) add++;
+  if (SUBU_COND) sub++;
+  if (AND_COND | ANDI_COND | OR_COND | ORI_COND | XOR_COND | XORI_COND | NOR_COND) logic++;
+  if (SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) shift++;
+  if (MULT_COND | MFHI_COND | MFLO_COND) mult++;
+  if (SLT_COND | SLTU_COND | SLTI_COND | SLTIU_COND) slt_u++;
+  if (JR_COND | J_COND | SYS_COND | JAL_COND) jump++;
+  if (LB_COND | LH_COND | LW_COND | LBU_COND | LHU_COND) load++;
+  if (SB_COND | SH_COND | SW_COND) store++;
+  if (BLTZ_COND | BGEZ_COND | BEQ_COND | BEQZ_COND | BNE_COND | BLEZ_COND | BGTZ_COND) branch++;
+#endif
 
   /*AND ANDI OR ORI XOR XORI*/
   bool LOGIC_IMM_COND = ANDI_COND | ORI_COND | XORI_COND; 
@@ -200,8 +241,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 			   ((OR_COND | ORI_COND) ? RES_OR : 0x0) |
 			   ((XOR_COND | XORI_COND) ? RES_XOR : 0x0) |
 			   ((NOR_COND) ? RES_NOR : 0x0);
-
-//if (SUBU_COND) printf("SUB");
 
   bool SUBLEQ_COND = false 
 #ifndef USE_ADDER
@@ -241,7 +280,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 #ifdef USE_MULT
   /*MULT*/ /**opcode == 0x00 & *funct == 0x18*/
-  long long int RES_MULT_TEMP = MULT (SRC1, SRC2);
+  int64_t RES_MULT_TEMP = MULT (SRC1, SRC2);
   int RES_MULT_LO = (MULT_COND)? RES_MULT_TEMP & 0xFFFFFFFF : RES_MFLO;
   int RES_MULT_HI = (RES_MULT_TEMP >> 32);
 #endif
@@ -249,9 +288,8 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 #ifdef USE_SUB  
   /*SUBU*/ /**opcode == 0x00 & *funct == 0x23*/
-  int RES_SUBU = SUB (SRC1, SRC2);
+  unsigned int RES_SUBU = SUB ((unsigned int) SRC1, (unsigned int) SRC2);
 #endif
-
 
   /*SRA*//*SRAV*//*SLL*//*SLLV*//*SRL*//*SRLV*/
   int SHIFT_INP = (SRAV_COND | SLLV_COND | SRLV_COND) ? SRC1 : *sa;
@@ -269,21 +307,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   unsigned int RES_ADDU = NEW_ADD (SRC1, ADD_INP);
 #endif  
 
-
-  int SLT_INP = (SLTI_COND) ? (signed short) *imm : SRC2;
-  unsigned int SLTU_INP = (SLTIU_COND) ? (unsigned short) *imm : SRC2;
+  int SLT_INP = (SLTI_COND | SLTIU_COND) ? (signed short) *imm : SRC2;
 #ifdef	USE_SET_LESS_THAN
   /*SLT*//*SLTI*/
   int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;
-
   /*SLTU*//*SLTIU*/
-  int RES_SLTU_I = ((unsigned int) SRC1 < SLTU_INP) ? 1 : 0;
-#if 0
-  if (SLT_COND) printf("SLT\n");
-  if (SLTI_COND) printf("SLTI\n");
-  if (SLTU_COND) printf("SLTU\n");
-  if (SLTIU_COND) printf("SLTIU\n");
-#endif
+  int RES_SLTU_I = ((unsigned int) SRC1 < (unsigned int) SLT_INP) ? 1 : 0;
 #endif
 
 
@@ -320,8 +349,43 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 			     ;
 
+  int SUBLEQ_INP1 = 0x0
+#ifndef USE_ADDER
+		   | ((ADDIU_COND | ADDU_COND) ? SRC1 : 0x0)
+#endif
+#ifndef USE_MULT
+		   | ((MULT_COND) ? SRC1 : 0x0)
+#endif
+#ifndef USE_SUB
+		   | ((SUBU_COND) ? SRC1 : 0x0) 
+#endif
+#ifndef	USE_SHIFTER
+		   | ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SRC2 : 0x0)
+#endif
+#ifndef USE_SYS
+		   | ((SYS_COND) ? SRC1 : 0x0)
+#endif
+#ifndef	USE_SET_LESS_THAN
+		   | ((SLT_COND | SLTI_COND | SLTU_COND | SLTIU_COND) ? SRC1 : 0x0)
+#endif
+		   ; 
 
-  int SUBLEQ_INP1 = ((SLTU_COND | SLTIU_COND) ? (unsigned int) SRC1 : SRC1);
+#if 0
+#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
+  SUBLEQ_INP1 = ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SRC2 : SRC1);
+#endif
+#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
+  SUBLEQ_INP1 = SRC1;
+#endif
+#endif
+
+#if 0  
+  int SUBLEQ_INP1 = 0x0
+#ifndef USE_SHIFTER
+		   | ((SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) ? SRC2 : 0x0)
+#endif
+		   ;
+#endif
 
   int SUBLEQ_INP2 = 0x0
 #ifndef	USE_ADDER
@@ -340,37 +404,79 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((SYS_COND) ? SRC2 : 0x0)
 #endif
 #ifndef	USE_SET_LESS_THAN
-		   | ((SLT_COND | SLTI_COND) ? SLT_INP : 0x0)
-		   | ((SLTU_COND | SLTIU_COND) ? SLTU_INP : 0x0)
+		   | ((SLT_COND | SLTI_COND | SLTU_COND | SLTIU_COND) ? SLT_INP : 0x0)
+		   /*| ((SLTU_COND | SLTIU_COND) ? SLT_INP : 0x0)*/
 #endif
 		   ; 
 
   if (SUBLEQ_COND) {
-#if 0
-    write_value (SRC1, SRC1_LOC);
-#endif
     write_value (SUBLEQ_INP1, SRC1_LOC);
     write_value (SUBLEQ_INP2, SRC2_LOC);
-#if 0
-    if (SRL_COND | SRLV_COND){
-      printf("SRL\n");
-      //printf("subu PC:0x%x, $%d, $%d, $%d ; %d + %d\n",ROUTINE_ADD, *rd, *rt, *rs, SRC1, SUBLEQ_INP2);
-    }
-    else if (SRA_COND | SRAV_COND){
-      printf("SRA\n");
-      //printf("multu $%d, $%d, $%d ; %d + %d\n", *rd, *rt, *rs, SRC1, SUBLEQ_INP2);
-    }
-#endif
     subleq_machine(ROUTINE_ADD);
-    if (ADDIU_COND | ADDU_COND){
-      //printf("%d + %d = %d\n", SRC1 , SUBLEQ_INP2, get_value(DEST_LOC));
-    }
-    else if (SUBU_COND){
-      //printf("%d - %d = %d\n", SRC1, SUBLEQ_INP2, get_value(DEST_LOC));
-    }
     RES_SUBLEQ = get_value(DEST_LOC);
   }
 #endif
+
+
+#ifdef DEBUG_SUB
+  if (SUBU_COND){
+    printf("SUB: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SRC2,(SRC1-SRC2),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+#endif
+#ifdef DEBUG_ADD
+  if (ADDU_COND){
+    printf("ADDU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,ADD_INP,(SRC1+ADD_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (ADDIU_COND){
+    printf("ADDIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,ADD_INP,(SRC1+ADD_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+#endif
+#ifdef DEBUG_MULT
+  if (MULT_COND){
+    if ((((int64_t)SRC1) * SRC2) != (int64_t)(((uint64_t)get_value(HI) << 32) | (uint64_t)get_value(LO))) {
+      printf("MULT: N:(%d,%d,%d,%d), S:(%d,%d,%d,%d)\n",SRC1,SRC2,(int)((((int64_t)SRC1)*SRC2)>>32), (int)((((int64_t)SRC1)*SRC2)&0xFFFFFFFF),SUBLEQ_INP1,SUBLEQ_INP2,get_value(HI),get_value(LO));
+    }
+  }
+#endif
+#ifdef DEBUG_MFLO
+#endif
+#ifdef DEBUG_MFHI
+#endif
+#ifdef DEBUG_SHIFTER
+  if (SLL_COND){
+    printf("SLL: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SLL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SLLV_COND){
+    printf("SLLV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SLL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SRL_COND){
+    printf("SRL: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SRLV_COND){
+    printf("SRLV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SRA_COND){
+    printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRA(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SRAV_COND){
+    printf("SRAV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRA(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+#endif
+#ifdef DEBUG_SET_LESS_THAN
+  if (SLT_COND){
+    printf("SLT: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SLTU_COND){
+    printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((unsigned int) SRC1 < (unsigned int) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SLTI_COND){
+    printf("SLTI: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  }
+  else if (SLTIU_COND){
+    printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((unsigned int) SRC1 < (unsigned int) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
+  } 
+#endif
+
 
 
   /*JR*/
@@ -558,6 +664,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((MULT_COND)? HI : 0x0) | /*MULT*/
 #endif
 	   ((JAL_COND)? 31 : 0x0);/*JAL*/
+
+
+
 #if 0
   WB_LOC = ((SLL_COND)? *rd : 0x0) | /*SLL*/
 	   ((SLLV_COND)? *rd : 0x0) | /*SLLV*/
@@ -667,7 +776,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
   write_value (RESULT, WB_LOC);
   *prog_count = RET_ADD;
+#ifdef PRINT
   printf(" RET_ADD: %x\n", *prog_count << 2);
+#endif
 #if 0
   if (*opcode == 0x00 & *funct == 0x00 & instruction != 0x00){
     printf("Instruction: %8.8x\n", instruction);
@@ -701,8 +812,8 @@ int NEW_ADD3 (int a, int b){
   return (a+b) & 0xFFFF;
 }
 
-int SUB (int a, int b){
-  return (a -b);
+unsigned int SUB (unsigned int a, unsigned int b){
+  return (a - b);
 }
 
 int SRA (int a, int b){
@@ -730,7 +841,7 @@ unsigned int XOR (unsigned int a, unsigned int b){
 unsigned int AND (unsigned int a, unsigned int b){
   return (a & b);
 }
-long MULT (int a, int b){
+int64_t MULT (int a, int b){
   return (a * b);
 }
 
