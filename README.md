@@ -1,1 +1,2 @@
-HIRUNDO
+# HIRUNDO
+A Synthesizable MIPS processor
