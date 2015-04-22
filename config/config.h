@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon 20 Apr 2015 04:49:12 PM JST
+* Last Modified on : Wed 22 Apr 2015 11:32:43 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -13,20 +13,6 @@
 #include <stdio.h>
 
 #define PRINT
-
-
-//#define PROFILE
-
-
-//#define DEBUG_SUB
-//#define DEBUG_ADD
-//#define DEBUG_MULT
-//#define DEBUG_MFLO
-//#define DEBUG_MFHI
-//#define DEBUG_SHIFTER
-//#define DEBUG_SET_LESS_THAN
-
-
 
 #define	USE_ADDER
 #define USE_SUB
@@ -38,6 +24,13 @@
 #define USE_SHIFTER
 #define USE_SYS
 #define USE_SET_LESS_THAN
+
+
+#define FAULT_ANALYZER
+#define BIT
+#define ADDRESS
+#define DATA
+#define BUS
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000
@@ -101,14 +94,3 @@ typedef	signed int	sint;
 typedef	signed char	schar;
 typedef	signed short	sshort;
 typedef	signed long	slong;
-
-
-
-unsigned int ADD[15] = {
-    SRC1_LOC, Z, ADD_ROUTINE+3,
-    SRC2_LOC, Z, ADD_ROUTINE+6,
-    DEST_LOC, DEST_LOC, ADD_ROUTINE+9,
-    Z, DEST_LOC, ADD_ROUTINE+12,
-    Z, Z, 999//(-1)
-};
-

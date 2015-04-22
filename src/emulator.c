@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon 20 Apr 2015 04:51:09 PM JST
+* Last Modified on : Wed 22 Apr 2015 12:18:13 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#include "../benchmarks/adpcm.h"
+#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
 //#include "../benchmarks/bubble.h"
@@ -27,19 +27,13 @@
 //#include "../benchmarks/insertsort.h"
 //#include "../benchmarks/jfdctint.h"
 //#include "../benchmarks/mpeg2.h"
-#include "../benchmarks/vec_add.h"
+//#include "../benchmarks/vec_add.h"
 
-#ifdef PROFILE
-int add = 0;
-int sub = 0;
-int shift = 0;
-int logic = 0;
-int mult = 0;
-int slt_u = 0;
-int jump = 0;
-int load = 0;
-int store = 0;
-int branch = 0;
+
+#ifdef FAULT_ANALYZER
+uint fault_value;
+uint fault_singal;
+uint signal_bit;
 #endif
 
 uint emulator (uint);
@@ -47,9 +41,9 @@ void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*,
 uint get_value(uint);
 void write_value(int, uint);
 //void add ();
-int NEW_ADD(int, int);
-int NEW_ADD2(int, int);
-int NEW_ADD3(int, int);
+int ADD(int, int);
+int ADD2(int, int);
+int ADD3(int, int);
 uint SUB (uint, uint);
 int SLL (int, int);
 int SRL (int, int);
@@ -64,45 +58,6 @@ void subleq_machine(ushort prog_count);
 int main(int argc, char **argv){
   uint prog_count = 0x2000;
   uint STATUS = emulator(prog_count >> 2);
-#ifdef PRINT
-  int i;
-  printf("========\nREG FILE\n========\n");
-  for (i = 0; i < 32; i++){
-    printf("%d\t",get_value(i));
-    if (((i+1) % 4) == 0)
-      printf("\n");
-  }
-#endif
-
-#ifdef PROFILE
-  printf("Addition: %d\n", add);
-  printf("Subtraction: %d\n", sub);
-  printf("All shift: %d\n", shift);
-  printf("All logic: %d\n", logic);
-  printf("All multiplication: %d\n", mult);
-  printf("All slt and sltu: %d\n", slt_u);
-  printf("All jump: %d\n", jump);
-  printf("All load from memory: %d\n", load);
-  printf("All store to memory: %d\n", store);
-  printf("All conditional branch: %d\n", branch);
-#endif
-
-
-#if 0
-  printf("=========\nPRINT MEM\n=========\n");
-  for (i = 0; i < 15; i++)
-    printf("%d\t", ADD[i]);
-  printf("\n");
-  for (i = ADD_ROUTINE; i < ADD_ROUTINE + 15; i++)
-    printf("%d\t", MEM[i]);
-  printf("\n");
-#endif
-#if 0
-  printf("=========\nPRINT MEM\n=========\n");
-  for (i = 0x17f5; i < 0x17f5 + 10; i++)
-    printf("%d\t", MEM[i]);
-  printf("\n");
-#endif
   return STATUS;
 }
 
@@ -120,22 +75,13 @@ uint emulator (uint prog_count){
   ushort imm;
   uchar sa;
 
-#ifdef PRINT
-  uint i = 0;
-#endif
 
   while (EMULATOR_STATUS == NORMAL){
     /*fetch instructions*/
-#ifdef PRINT
-    printf("%d: %3.3x, INST: %8.8x", i, prog_count << 2, get_value(prog_count));
-#endif
-    instruction = get_value (prog_count);
-    prog_count_1 = prog_count_1 + 1;
-    prog_count = prog_count_1;
+    instruction = get_value (prog_count);//signal-1, 32-bit
+    prog_count_1 = prog_count_1 + 1;//signal-2, 32-bit
+    prog_count = prog_count_1;//signal-3,32-bit
     exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &EMULATOR_STATUS);
-#ifdef PRINT
-    i++;
-#endif
   }
   prog_count_1 = prog_count_1 & 0x1; 
   return prog_count_1;//EMULATOR_STATUS;
@@ -143,98 +89,86 @@ uint emulator (uint prog_count){
 
 void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, uchar *rd, ushort *imm, uchar *sa, uint *prog_count, uint *EMULATOR_STATUS){
   /*decode instructions*/
-  *opcode = instruction >> 26;
-  *rs = (instruction >> 21) & 0X0000001F;
-  *rt = (instruction >> 16) & 0X0000001F;
-  *rd = (instruction >> 11) & 0X0000001F;
-  *sa = (instruction >> 6) & 0X0000001F;
-  *funct = instruction & 0X0000003F;
-  *imm = instruction & 0xFFFF;
+  *opcode = instruction >> 26;//signal-4, 6-bit
+  *rs = (instruction >> 21) & 0X0000001F;//signal-5, 6-bit
+  *rt = (instruction >> 16) & 0X0000001F;//signal-6, 6-bit
+  *rd = (instruction >> 11) & 0X0000001F;//signal-7, 6-bit
+  *sa = (instruction >> 6) & 0X0000001F;//signal-8, 6-bit
+  *funct = instruction & 0X0000003F;//signal-9, 6-bit
+  *imm = instruction & 0xFFFF;//signal-10, 6-bit
 
 
-  int SRC1 = get_value (*rs);
-  int SRC2 = get_value (*rt);
-  int RESULT = 0;//NEW_ADD (SRC1, SRC2); /*addu*/
-  uint RET_ADD = *prog_count;// = *prog_count;
+  int SRC1 = get_value (*rs);//signal-11, 32-bit
+  int SRC2 = get_value (*rt);//signal-12, 32-bit
+  int RESULT = 0;//ADD (SRC1, SRC2); /*addu*/
+  uint RET_ADD = *prog_count;// = *prog_count;//signal-13, 16-bit
   uint WB_LOC = TEMP_REG;
 
-  bool R_TYPE = (*opcode == 0x00);
-  bool NOP_COND = (instruction == 0x0);
-  bool SLL_COND = (R_TYPE & !NOP_COND & (*funct == 0x00));
-  bool SRL_COND = (R_TYPE & (*funct == 0x02));
-  bool SRA_COND = (R_TYPE & (*funct == 0x03));
-  bool SLLV_COND = (R_TYPE & (*funct == 0x04));
-  bool SRLV_COND = (R_TYPE & (*funct == 0x06));
-  bool SRAV_COND = (R_TYPE & (*funct == 0x07));
-  bool JR_COND = (R_TYPE & (*funct == 0x08));
-  bool SYS_COND = (R_TYPE & (*funct == 0x0C));
-  bool MFHI_COND = (R_TYPE & (*funct == 0x10));
-  bool MFLO_COND = (R_TYPE & (*funct == 0x12));
-  bool MULT_COND = (R_TYPE & (*funct == 0x18));
+  bool R_TYPE = (*opcode == 0x00);//signal-14,bit
+  bool NOP_COND = (instruction == 0x0);//signal-15,bit
+  bool SLL_COND = (R_TYPE & !NOP_COND & (*funct == 0x00));//signal-16,bit
+  bool SRL_COND = (R_TYPE & (*funct == 0x02));//signal-17,bit
+  bool SRA_COND = (R_TYPE & (*funct == 0x03));//signal-18,bit
+  bool SLLV_COND = (R_TYPE & (*funct == 0x04));//signal-19, bit
+  bool SRLV_COND = (R_TYPE & (*funct == 0x06));//signal-20, bit
+  bool SRAV_COND = (R_TYPE & (*funct == 0x07));//signal-21, bit
+  bool JR_COND = (R_TYPE & (*funct == 0x08));//signal-22, bit
+  bool SYS_COND = (R_TYPE & (*funct == 0x0C));//signal-23,bit
+  bool MFHI_COND = (R_TYPE & (*funct == 0x10));//signal-24,bit
+  bool MFLO_COND = (R_TYPE & (*funct == 0x12));//signal-25,bit
+  bool MULT_COND = (R_TYPE & (*funct == 0x18));//signal-26,bit
   //bool DIV_COND =
-  bool ADDU_COND = (R_TYPE & (*funct == 0x21));
-  bool SUBU_COND = (R_TYPE & (*funct == 0x23));
-  bool AND_COND = (R_TYPE & (*funct == 0x24));
-  bool OR_COND = (R_TYPE & (*funct == 0x25));
-  bool XOR_COND = (R_TYPE & (*funct == 0x26));
-  bool NOR_COND = (R_TYPE & (*funct == 0x27));
-  bool SLT_COND = (R_TYPE & (*funct == 0x2A));
-  bool SLTU_COND = (R_TYPE & (*funct == 0x2B));
+  bool ADDU_COND = (R_TYPE & (*funct == 0x21));//signal-27,bit
+  bool SUBU_COND = (R_TYPE & (*funct == 0x23));//signal-28,bit
+  bool AND_COND = (R_TYPE & (*funct == 0x24));//signal-29, bit
+  bool OR_COND = (R_TYPE & (*funct == 0x25));//signal-30, bit
+  bool XOR_COND = (R_TYPE & (*funct == 0x26));//signal-31,bit
+  bool NOR_COND = (R_TYPE & (*funct == 0x27));//signal-32,bit
+  bool SLT_COND = (R_TYPE & (*funct == 0x2A));//signal-33,bit
+  bool SLTU_COND = (R_TYPE & (*funct == 0x2B));//signal-34-bit
   //
-  bool J_COND = (*opcode == 0x02);
-  bool JAL_COND = (*opcode == 0x03);
+  bool J_COND = (*opcode == 0x02);//signal-35,bit
+  bool JAL_COND = (*opcode == 0x03);//signal-36,bit
   //
-  bool BLTZ_COND = ((*opcode == 0x01) & (*rt == 0x0));
-  bool BGEZ_COND = ((*opcode == 0x01) & (*rt == 0x1));
-  bool BEQ_COND = ((*opcode == 0x04) & (*rt != 0x0));
-  bool BEQZ_COND = ((*opcode == 0x04) & (*rt == 0x0));
-  bool BNE_COND = (*opcode == 0x05);
-  bool BLEZ_COND = (*opcode == 0x06);
-  bool BGTZ_COND = (*opcode == 0x07);
-  bool ADDIU_COND = (*opcode == 0x09);
-  bool SLTI_COND = (*opcode == 0x0A);
-  bool SLTIU_COND = (*opcode == 0x0B);
-  bool ANDI_COND = (*opcode == 0x0C);
-  bool ORI_COND = (*opcode == 0x0D);
-  bool XORI_COND = (*opcode == 0x0E);
-  bool LUI_COND = (*opcode == 0x0F);
-  bool LB_COND = (*opcode == 0x20);
-  bool LH_COND = (*opcode == 0x21);
-  bool LW_COND = (*opcode == 0x23);
-  bool LBU_COND = (*opcode == 0x24);
-  bool LHU_COND = (*opcode == 0x25);
-  bool SB_COND = (*opcode == 0x28);
-  bool SH_COND = (*opcode == 0x29);
-  bool SW_COND = (*opcode == 0x2B);
+  bool BLTZ_COND = ((*opcode == 0x01) & (*rt == 0x0));//signal-37,bit
+  bool BGEZ_COND = ((*opcode == 0x01) & (*rt == 0x1));//signal-38,bit
+  bool BEQ_COND = ((*opcode == 0x04) & (*rt != 0x0));//signal-39,bit
+  bool BEQZ_COND = ((*opcode == 0x04) & (*rt == 0x0));//signal-40,bit
+  bool BNE_COND = (*opcode == 0x05);//signal-41,bit
+  bool BLEZ_COND = (*opcode == 0x06);//signal-42,bit
+  bool BGTZ_COND = (*opcode == 0x07);//signal-43,bit
+  bool ADDIU_COND = (*opcode == 0x09);//signal-44,bit
+  bool SLTI_COND = (*opcode == 0x0A);//signal-45,bit
+  bool SLTIU_COND = (*opcode == 0x0B);//signal-46,bit
+  bool ANDI_COND = (*opcode == 0x0C);//signal-47,bit
+  bool ORI_COND = (*opcode == 0x0D);//signal-48,bit
+  bool XORI_COND = (*opcode == 0x0E);//signal-49,bit
+  bool LUI_COND = (*opcode == 0x0F);//signal-50,bit
+  bool LB_COND = (*opcode == 0x20);//signal-51,bit
+  bool LH_COND = (*opcode == 0x21);//signal-52,bit
+  bool LW_COND = (*opcode == 0x23);//signal-53,bit
+  bool LBU_COND = (*opcode == 0x24);//signal-54,bit
+  bool LHU_COND = (*opcode == 0x25);//signal-55,bit
+  bool SB_COND = (*opcode == 0x28);//signal-56,bit
+  bool SH_COND = (*opcode == 0x29);//signal-57,bit
+  bool SW_COND = (*opcode == 0x2B);//signal-58,bit
 
 
-#ifdef PROFILE
-  if (ADDU_COND | ADDIU_COND) add++;
-  if (SUBU_COND) sub++;
-  if (AND_COND | ANDI_COND | OR_COND | ORI_COND | XOR_COND | XORI_COND | NOR_COND) logic++;
-  if (SLL_COND | SLLV_COND | SRL_COND | SRLV_COND | SRA_COND | SRAV_COND) shift++;
-  if (MULT_COND | MFHI_COND | MFLO_COND) mult++;
-  if (SLT_COND | SLTU_COND | SLTI_COND | SLTIU_COND) slt_u++;
-  if (JR_COND | J_COND | SYS_COND | JAL_COND) jump++;
-  if (LB_COND | LH_COND | LW_COND | LBU_COND | LHU_COND) load++;
-  if (SB_COND | SH_COND | SW_COND) store++;
-  if (BLTZ_COND | BGEZ_COND | BEQ_COND | BEQZ_COND | BNE_COND | BLEZ_COND | BGTZ_COND) branch++;
-#endif
 
   /*AND ANDI OR ORI XOR XORI*/
-  bool LOGIC_IMM_COND = ANDI_COND | ORI_COND | XORI_COND; 
+  bool LOGIC_IMM_COND = ANDI_COND | ORI_COND | XORI_COND;//signal-59,bit 
 
-  uint LOGIC_IMM_INP = (LOGIC_IMM_COND) ? (ushort) *imm : SRC2;
-  uint RES_AND = AND (SRC1, LOGIC_IMM_INP);
-  uint RES_OR = OR (SRC1, LOGIC_IMM_INP);
-  uint RES_XOR = XOR (SRC1, LOGIC_IMM_INP);
+  uint LOGIC_IMM_INP = (LOGIC_IMM_COND) ? (ushort) *imm : SRC2;//signal-60,32-bit
+  uint RES_AND = AND (SRC1, LOGIC_IMM_INP);//signal-61,32-bit
+  uint RES_OR = OR (SRC1, LOGIC_IMM_INP);//signal-62,32-bit
+  uint RES_XOR = XOR (SRC1, LOGIC_IMM_INP);//signal-63,32-bit
   /*NOR*/
-  uint RES_NOR = ~RES_OR;
+  uint RES_NOR = ~RES_OR;//signal-64,32-bit
 
   uint RES_LOGIC = ((AND_COND | ANDI_COND) ? RES_AND : 0x0) |
 		   ((OR_COND | ORI_COND) ? RES_OR : 0x0) |
 		   ((XOR_COND | XORI_COND) ? RES_XOR : 0x0) |
-		   ((NOR_COND) ? RES_NOR : 0x0);
+		   ((NOR_COND) ? RES_NOR : 0x0);//signal-65,32-bit
 
   bool SUBLEQ_COND = false 
 #ifndef USE_ADDER
@@ -265,46 +199,46 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   
   /*MFHI*//**opcode == 0x00 & *funct == 0x10*/
 #ifdef USE_MFHI
-  uint RES_MFHI = get_value (HI);
+  uint RES_MFHI = get_value (HI);//signal-66,32-bit
 #endif
 #ifdef USE_MFLO
-  uint RES_MFLO = get_value (LO);
+  uint RES_MFLO = get_value (LO);//signal-67,32-bit
 #endif
 
 
 #ifdef USE_MULT
   /*MULT*/ /**opcode == 0x00 & *funct == 0x18*/
   int64_t RES_MULT_TEMP = MULT (SRC1, SRC2);
-  int RES_MULT_LO = (MULT_COND)? RES_MULT_TEMP & 0xFFFFFFFF : RES_MFLO;
-  int RES_MULT_HI = (RES_MULT_TEMP >> 32);
+  int RES_MULT_LO = (MULT_COND)? RES_MULT_TEMP & 0xFFFFFFFF : RES_MFLO;//signal-68,32-bit
+  int RES_MULT_HI = (RES_MULT_TEMP >> 32);//signal-69,32-bit
 #endif
 
 
 #ifdef USE_SUB  
   /*SUBU*/ /**opcode == 0x00 & *funct == 0x23*/
-  uint RES_SUBU = SUB ((uint) SRC1, (uint) SRC2);
+  uint RES_SUBU = SUB ((uint) SRC1, (uint) SRC2);//signal-70,32-bit
 #endif
 
   /*SRA*//*SRAV*//*SLL*//*SLLV*//*SRL*//*SRLV*/
-  int SHIFT_INP = (SRAV_COND | SLLV_COND | SRLV_COND) ? SRC1 : *sa;
+  int SHIFT_INP = (SRAV_COND | SLLV_COND | SRLV_COND) ? SRC1 : *sa;//signal-71,32-bit
 #ifdef USE_SHIFTER
-  int RES_SRA_V = SRA (SRC2, SHIFT_INP);
-  int RES_SLLV = SLL (SRC2, SHIFT_INP);
-  int RES_SRLV = SRL (SRC2, SHIFT_INP);
+  int RES_SRA_V = SRA (SRC2, SHIFT_INP);//signal-72,32-bit
+  int RES_SLLV = SLL (SRC2, SHIFT_INP);//signal-73,32-bit
+  int RES_SRLV = SRL (SRC2, SHIFT_INP);//signal-74,32-bit
 #endif
 
-  int ADD_INP = (ADDIU_COND)? (sshort)*imm : SRC2;
+  int ADD_INP = (ADDIU_COND)? (sshort)*imm : SRC2;//signal-75,32-bit
 #ifdef USE_ADDER
   /*addu addiu*/
-  uint RES_ADDU = NEW_ADD (SRC1, ADD_INP);
+  uint RES_ADDU = ADD (SRC1, ADD_INP);//signal-76,32-bit
 #endif  
 
-  int SLT_INP = (SLTI_COND | SLTIU_COND) ? (sshort) *imm : SRC2;
+  int SLT_INP = (SLTI_COND | SLTIU_COND) ? (sshort) *imm : SRC2;//signal-77,32-bit
 #ifdef	USE_SET_LESS_THAN
   /*SLT*//*SLTI*/
-  int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;
+  int RES_SLT_I = (SRC1 < SLT_INP) ? 1 : 0;//signal-78,32-bit
   /*SLTU*//*SLTIU*/
-  int RES_SLTU_I = ((uint) SRC1 < (uint) SLT_INP) ? 1 : 0;
+  int RES_SLTU_I = ((uint) SRC1 < (uint) SLT_INP) ? 1 : 0;//signal-79,32-bit
 #endif
 
 
@@ -381,7 +315,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifndef	USE_SET_LESS_THAN
 		   | ((SLT_COND | SLTI_COND | SLTU_COND | SLTIU_COND) ? SLT_INP : 0x0)
-		   /*| ((SLTU_COND | SLTIU_COND) ? SLT_INP : 0x0)*/
 #endif
 		   ; 
 
@@ -394,146 +327,76 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 
 
-#ifdef DEBUG_SUB
-  if (SUBU_COND){
-    printf("SUB: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SRC2,(SRC1-SRC2),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-#endif
-#ifdef DEBUG_ADD
-  if (ADDU_COND){
-    printf("ADDU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,ADD_INP,(SRC1+ADD_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (ADDIU_COND){
-    printf("ADDIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,ADD_INP,(SRC1+ADD_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-#endif
-#ifdef DEBUG_MULT
-  if (MULT_COND){
-    if ((((int64_t)SRC1) * SRC2) != (int64_t)(((uint64_t)get_value(HI) << 32) | (uint64_t)get_value(LO))) {
-      printf("MULT: N:(%d,%d,%d,%d), S:(%d,%d,%d,%d)\n",SRC1,SRC2,(int)((((int64_t)SRC1)*SRC2)>>32), (int)((((int64_t)SRC1)*SRC2)&0xFFFFFFFF),SUBLEQ_INP1,SUBLEQ_INP2,get_value(HI),get_value(LO));
-    }
-  }
-#endif
-#ifdef DEBUG_MFLO
-#endif
-#ifdef DEBUG_MFHI
-#endif
-#ifdef DEBUG_SHIFTER
-  if (SLL_COND){
-    printf("SLL: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SLL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SLLV_COND){
-    printf("SLLV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SLL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SRL_COND){
-    printf("SRL: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SRLV_COND){
-    printf("SRLV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRL(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SRA_COND){
-    printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRA(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SRAV_COND){
-    printf("SRAV: N:(%x,%x,%x), S:(%x,%x,%x)\n",SRC2,SHIFT_INP,SRA(SRC2,SHIFT_INP),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-#endif
-#ifdef DEBUG_SET_LESS_THAN
-  if (SLT_COND){
-    printf("SLT: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SLTU_COND){
-    printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((uint) SRC1 < (uint) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SLTI_COND){
-    printf("SLTI: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,((SRC1 < SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  }
-  else if (SLTIU_COND){
-    printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",SRC1,SLT_INP,(((uint) SRC1 < (uint) SLT_INP)?1:0),SUBLEQ_INP1,SUBLEQ_INP2,RES_SUBLEQ);
-  } 
-#endif
-
-
-
   /*JR*/
-  uint RET_ADD_JR = NEW_ADD2 (SRC1, -1);
+  uint RET_ADD_JR = ADD2 (SRC1, -1);//signal-80,16-bit
 
   /*jal, j*/
-  uint RES_JAL = NEW_ADD2 (RET_ADD, 1);
-  uint RET_ADD_J = NEW_ADD2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
+  uint RES_JAL = ADD2 (RET_ADD, 1);//signal-81,16-bit
+  uint RET_ADD_J = ADD2 (((((*rs << 5) | *rt) << 16) | *imm), -1);//signal-82,16-bit
 
 
   /*BNE BEQZ BLEZ*/
-  uint COND_BR_ADD = NEW_ADD2 (NEW_ADD2 (RET_ADD, (sshort)*imm), -1);
-  bool CHECK_EQ = (SRC1 == SRC2)? true : false;
-  bool SRC_EQ_0 = (SRC1 == 0) ? true : false;
-  bool SRC_GT_0 = (SRC1 > 0) ? true : false;
+  uint COND_BR_ADD = ADD2 (ADD2 (RET_ADD, (sshort)*imm), -1);//signal-83,16-bit
+  bool CHECK_EQ = (SRC1 == SRC2)? true : false;//signal-84,bit
+  bool SRC_EQ_0 = (SRC1 == 0) ? true : false;//signal-85,bit
+  bool SRC_GT_0 = (SRC1 > 0) ? true : false;//signal-86,bit
 
-  bool BNE_COND_TEMP = (BNE_COND & !CHECK_EQ);
-  bool BEQ_COND_TEMP = (BEQ_COND & CHECK_EQ);
-  bool BEQZ_COND_TEMP = (BEQZ_COND & (SRC_EQ_0));
-  bool BGEZ_COND_TEMP = (BGEZ_COND & (SRC_EQ_0 | SRC_GT_0));
-  bool BLEZ_COND_TEMP = (BLEZ_COND & (SRC_EQ_0 | !SRC_GT_0));
-  bool BLTZ_COND_TEMP = (BLTZ_COND & (!SRC_GT_0));
-  bool BGTZ_COND_TEMP = (BGTZ_COND & (SRC_GT_0));
+  bool BNE_COND_TEMP = (BNE_COND & !CHECK_EQ);//signal-87,bit
+  bool BEQ_COND_TEMP = (BEQ_COND & CHECK_EQ);//signal-88,bit
+  bool BEQZ_COND_TEMP = (BEQZ_COND & (SRC_EQ_0));//signal-89,bit
+  bool BGEZ_COND_TEMP = (BGEZ_COND & (SRC_EQ_0 | SRC_GT_0));//signal-90,bit
+  bool BLEZ_COND_TEMP = (BLEZ_COND & (SRC_EQ_0 | !SRC_GT_0));//signal-91,bit
+  bool BLTZ_COND_TEMP = (BLTZ_COND & (!SRC_GT_0));//signal-92,bit
+  bool BGTZ_COND_TEMP = (BGTZ_COND & (SRC_GT_0));//signal-93,bit
 
-  bool BR_COND_ALL = (BNE_COND_TEMP | BEQ_COND_TEMP | BEQZ_COND_TEMP | BGEZ_COND_TEMP | BLEZ_COND_TEMP | BLTZ_COND_TEMP | BGTZ_COND_TEMP);
+  bool BR_COND_ALL = (BNE_COND_TEMP | BEQ_COND_TEMP | BEQZ_COND_TEMP | BGEZ_COND_TEMP | BLEZ_COND_TEMP | BLTZ_COND_TEMP | BGTZ_COND_TEMP);//signal-94,bit
 
-  uint RET_ADD_COND_BRANCH = (BR_COND_ALL) ? COND_BR_ADD : RET_ADD;
+  uint RET_ADD_COND_BRANCH = (BR_COND_ALL) ? COND_BR_ADD : RET_ADD;//signal-94,16-bit
 
   /*lui*/
-  int RES_LUI = (*imm << 16) | 0x0000;
+  int RES_LUI = (*imm << 16) | 0x0000;//signal-95,32-bit
   
-  int MEM_ADD_TEMP = NEW_ADD3 (SRC1, (sshort) *imm);
+  int MEM_ADD_TEMP = ADD3 (SRC1, (sshort) *imm);//signal-96,16-bit
   /*sw*/
-  uint MEM_ADD = (MEM_ADD_TEMP >> 2);
-  int RES_SW = SRC2;
+  uint MEM_ADD = (MEM_ADD_TEMP >> 2);//signal-97,16-bit
+  int RES_SW = SRC2;//signal-98,32-bit
   /*LW*/
-  int RES_LW = get_value(MEM_ADD);//SRC2;
+  int RES_LW = get_value(MEM_ADD);//SRC2;//signal-99,32-bit
   /*SB*/
-  uchar BYTE_CHECK = MEM_ADD_TEMP & 0x2;
+  uchar BYTE_CHECK = MEM_ADD_TEMP & 0x2;//signal-100,2-bit
 
-  uint RES_SB0 = (RES_LW & 0xFFFFFF00) | (0xFF & (SRC2 << 0));
-  uint RES_SB1 = (RES_LW & 0xFFFF00FF) | (0xFF00 & (SRC2 << 8));
-  uint RES_SB2 = (RES_LW & 0xFF00FFFF) | (0xFF0000 & (SRC2 << 16));
-  uint RES_SB3 = (RES_LW & 0x00FFFFFF) | (0xFF000000 & (SRC2 << 24));
+  uint RES_SB0 = (RES_LW & 0xFFFFFF00) | (0xFF & (SRC2 << 0));//signal-101,32-bit
+  uint RES_SB1 = (RES_LW & 0xFFFF00FF) | (0xFF00 & (SRC2 << 8));//signal-102,32-bit
+  uint RES_SB2 = (RES_LW & 0xFF00FFFF) | (0xFF0000 & (SRC2 << 16));//signal-103,32-bit
+  uint RES_SB3 = (RES_LW & 0x00FFFFFF) | (0xFF000000 & (SRC2 << 24));//signal-104,32-bit
 
-  uint RES_SB = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_SB3 : RES_SB2) : ((BYTE_CHECK & 0x1)? RES_SB1 : RES_SB0);
+  uint RES_SB = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_SB3 : RES_SB2) : ((BYTE_CHECK & 0x1)? RES_SB1 : RES_SB0);//signal-105,32-bit
 
   /*LBU, LB*/
-  uint RES_LBU0 = (RES_LW & 0xFF) >> 0;
-  uint RES_LBU1 = (RES_LW & 0xFF00) >> 8;
-  uint RES_LBU2 = (RES_LW & 0xFF0000) >> 16;
-  uint RES_LBU3 = (RES_LW & 0xFF000000) >> 24;
+  uint RES_LBU0 = (RES_LW & 0xFF) >> 0;//signal-106,32-bit
+  uint RES_LBU1 = (RES_LW & 0xFF00) >> 8;//signal-107,32-bit
+  uint RES_LBU2 = (RES_LW & 0xFF0000) >> 16;//signal-108,32-bit
+  uint RES_LBU3 = (RES_LW & 0xFF000000) >> 24;//signal-109,32-bit
 
-  uint RES_LBU = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_LBU3 : RES_LBU2) : ((BYTE_CHECK & 0x1)? RES_LBU1 : RES_LBU0);
+  uint RES_LBU = (BYTE_CHECK >> 1) ? ((BYTE_CHECK & 0x1)? RES_LBU3 : RES_LBU2) : ((BYTE_CHECK & 0x1)? RES_LBU1 : RES_LBU0);//signal-110,32-bit
 
   /*SH*/
-  uchar BIT_CHECK = MEM_ADD_TEMP & 0x1;
-  uint RES_SH0 = (RES_LW & 0xFFFF0000) | (0xFFFF & (SRC2 << 0));
-  uint RES_SH1 = (RES_LW & 0x0000FFFF) | (0xFFFF0000 & (SRC2 << 16));
-  uint RES_SH = (BIT_CHECK)? RES_SH1 : RES_SH0;
+  uchar BIT_CHECK = MEM_ADD_TEMP & 0x1;//signal-111,1-bit
+  uint RES_SH0 = (RES_LW & 0xFFFF0000) | (0xFFFF & (SRC2 << 0));//signal-112,32-bit
+  uint RES_SH1 = (RES_LW & 0x0000FFFF) | (0xFFFF0000 & (SRC2 << 16));//signal-113,32-bit
+  uint RES_SH = (BIT_CHECK)? RES_SH1 : RES_SH0;//signal-114,32-bit
 
   /*LHU, LH*/
-  uint RES_LHU0 = (RES_LW & 0xFFFF);
-  uint RES_LHU1 = (RES_LW & 0xFFFF0000) >> 16;
-  uint RES_LHU = (BIT_CHECK)? RES_LHU1 : RES_LHU0;
+  uint RES_LHU0 = (RES_LW & 0xFFFF);//signal-115,32-bit
+  uint RES_LHU1 = (RES_LW & 0xFFFF0000) >> 16;//signal-116,32-bit
+  uint RES_LHU = (BIT_CHECK)? RES_LHU1 : RES_LHU0;//signal-117,32-bit
 
-  bool RET_ADD_EXP = (J_COND | JR_COND | JAL_COND | BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND);
+  bool RET_ADD_EXP = (J_COND | JR_COND | JAL_COND | BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND);//signal-118,bit
   RET_ADD = ((J_COND)? RET_ADD_J : 0x0) |/*J*/
 	    ((JR_COND)? RET_ADD_JR : 0x0) |/*JR*/
 	    ((JAL_COND)? RET_ADD_J : 0x0) |/*JAL*/
 	    ((BNE_COND | BEQZ_COND | BEQ_COND | BLEZ_COND | BLTZ_COND | BGEZ_COND | BGTZ_COND) ? RET_ADD_COND_BRANCH : 0x0) |
-#if 0
-	    ((BNE_COND)? RET_ADD_BNE : 0x0) |/*BNE*/
-	    ((BEQZ_COND)? RET_ADD_BEQZ : 0x0) |/*BEQZ*/
-	    ((BEQ_COND)? RET_ADD_BEQ : 0x0) |/*BEQ*/
-	    ((BLEZ_COND)? RET_ADD_BLEZ : 0x0) |/*BLEZ*/
-	    ((BLTZ_COND)? RET_ADD_BLTZ : 0x0) |/*BLTZ*/
-	    ((BGEZ_COND)? RET_ADD_BGEZ : 0x0) |/*BGEZ*/
-	    ((BGTZ_COND)? RET_ADD_BGTZ : 0x0) |/*BGTZ*/
-#endif
-	    ((RET_ADD_EXP)? 0x0 : RET_ADD);
+	    ((RET_ADD_EXP)? 0x0 : RET_ADD);//signal-119,16-bit
 
   bool RESULT_EXP = (J_COND | JR_COND
 #ifndef USE_SYS
@@ -543,15 +406,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifndef USE_MULT
 		    | MULT_COND
 #endif
-		    );
+		    );//signal-120,bit
 
   RESULT = (AND_COND | ANDI_COND | OR_COND | ORI_COND | XOR_COND | XORI_COND | NOR_COND) ? RES_LOGIC : 0x0 |
-#if 0
-  RESULT = ((AND_COND | ANDI_COND)? RES_AND : 0x0) | /*AND*/
-	   ((OR_COND | ORI_COND)? RES_OR : 0x0) | /*OR*/
-	   ((XOR_COND | XORI_COND)? RES_XOR : 0x0) | /*XOR*/
-	   ((NOR_COND)? RES_NOR : 0x0) | /*NOR*/
-#endif
 #ifdef USE_SET_LESS_THAN
 	   ((SLT_COND | SLTI_COND)? RES_SLT_I : 0x0) |/*SLT*//*SLTI*/
 	   ((SLTU_COND | SLTIU_COND)? RES_SLTU_I : 0x0) |/*SLTU*/
@@ -590,7 +447,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((SW_COND)? RES_SW : 0x0) |/*SW*/
 	   ((SB_COND)? RES_SB : 0x0) | /*SB*/
 	   ((SH_COND)? RES_SH : 0x0) | /*SH*/
-	   ((RESULT_EXP)? 0x0 : 0x0);/*EXPECTION*/
+	   ((RESULT_EXP)? 0x0 : 0x0);/*EXPECTION*///signal-121,32-bit
 
 
 
@@ -598,10 +455,10 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifndef USE_MULT
 		     | MULT_COND
 #endif
-		     );
-  bool WB_RD = (SLL_COND | SLLV_COND | SRA_COND | SRAV_COND | SRL_COND | SRLV_COND | AND_COND | OR_COND | XOR_COND | NOR_COND | SLT_COND | SLTU_COND | ADDU_COND | SUBU_COND | MFHI_COND | MFLO_COND);  
-  bool WB_RT = (SLTI_COND | SLTIU_COND | LW_COND | LBU_COND | LB_COND | LH_COND | LHU_COND | ORI_COND | ANDI_COND | XORI_COND | ADDIU_COND | LUI_COND); 
-  bool WB_MEM_ADD = (SW_COND | SB_COND | SH_COND);
+		     );//signal-122,bit
+  bool WB_RD = (SLL_COND | SLLV_COND | SRA_COND | SRAV_COND | SRL_COND | SRLV_COND | AND_COND | OR_COND | XOR_COND | NOR_COND | SLT_COND | SLTU_COND | ADDU_COND | SUBU_COND | MFHI_COND | MFLO_COND);//signal-123,bit  
+  bool WB_RT = (SLTI_COND | SLTIU_COND | LW_COND | LBU_COND | LB_COND | LH_COND | LHU_COND | ORI_COND | ANDI_COND | XORI_COND | ADDIU_COND | LUI_COND);//signal-123,bit 
+  bool WB_MEM_ADD = (SW_COND | SB_COND | SH_COND);//signal-124,bit
 
   WB_LOC = ((WB_TEMP_REG)? TEMP_REG : 0x0) | 
 	   ((WB_RD)? *rd : 0x0) |
@@ -610,12 +467,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifdef USE_MULT 
 	   ((MULT_COND)? HI : 0x0) | /*MULT*/
 #endif
-	   ((JAL_COND)? 31 : 0x0);/*JAL*/
+	   ((JAL_COND)? 31 : 0x0);/*JAL*///sginal-125,16-bit
 
   /*syscall*/
 #ifdef USE_SYS
-  int SYSCALL_EXIT = get_value(2);
-  *EMULATOR_STATUS = (SYS_COND & (SYSCALL_EXIT == 10)) ? FINISH : NORMAL;
+  int SYSCALL_EXIT = get_value(2);//signal-126,32-bit
+  *EMULATOR_STATUS = (SYS_COND & (SYSCALL_EXIT == 10)) ? FINISH : NORMAL;//signal-127,32-bit
 #else
   *EMULATOR_STATUS = (SYS_COND & (RES_SUBLEQ == 10)) ? FINISH : NORMAL;
 #endif 
@@ -624,15 +481,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   write_value (RES_MULT_LO, LO);
 #endif
   write_value (RESULT, WB_LOC);
-  *prog_count = RET_ADD;
-#ifdef PRINT
-  printf(" RET_ADD: %x\n", *prog_count << 2);
-#endif
-#if 0
-  if (*opcode == 0x00 & *funct == 0x00 & instruction != 0x00){
-    printf("Instruction: %8.8x\n", instruction);
-  }
-#endif
+  *prog_count = RET_ADD;//signal-128,16-bit
 }
 
 
@@ -645,19 +494,19 @@ void write_value(int value, uint location){
 }
 
 
-int NEW_ADD_prev (int a, int b){
+int ADD_prev (int a, int b){
   return a + b;
 }
 
-int NEW_ADD (int a, int b){
+int ADD (int a, int b){
   return a + b;
 }
 
-int NEW_ADD2 (int a, int b){
+int ADD2 (int a, int b){
   return (a+b) & 0xFFFF;
 }
 
-int NEW_ADD3 (int a, int b){
+int ADD3 (int a, int b){
   return (a+b) & 0xFFFF;
 }
 
