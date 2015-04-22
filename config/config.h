@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Wed 22 Apr 2015 11:32:43 AM JST
+* Last Modified on : Wed 22 Apr 2015 04:22:46 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -14,16 +14,16 @@
 
 #define PRINT
 
-#define	USE_ADDER
-#define USE_SUB
-#define USE_MULT
-#define USE_MFLO
-#define USE_MFHI
-#define USE_MTLO
-#define USE_MTHI
-#define USE_SHIFTER
-#define USE_SYS
-#define USE_SET_LESS_THAN
+//#define	USE_ADDER
+//#define USE_SUB
+//#define USE_MULT
+//#define USE_MFLO
+//#define USE_MFHI
+//#define USE_MTLO
+//#define USE_MTHI
+//#define USE_SHIFTER
+//#define USE_SYS
+//#define USE_SET_LESS_THAN
 
 
 #define FAULT_ANALYZER
