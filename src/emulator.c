@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed 22 Apr 2015 06:57:36 PM JST
+* Last Modified on : Wed 22 Apr 2015 08:16:58 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -594,7 +594,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 
-  bool wb_temp_reg = (j_cond | beqz_cond | jr_cond | sys_cond | bne_cond | beqz_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond | nop_cond
+  bool wb_temp_reg = (j_cond | beq_cond | jr_cond | sys_cond | bne_cond | beqz_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond | nop_cond
 #ifndef USE_MULT
 		     | mult_cond
 #endif
