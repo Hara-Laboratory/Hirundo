@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 09:42:48 AM JST
+* Last Modified on : Thu 23 Apr 2015 03:59:40 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,7 +12,23 @@
 
 #include <stdio.h>
 
-#define PRINT
+//#include "../benchmarks/adpcm.h"
+//#include "../benchmarks/bf.h"
+//#include "../benchmarks/bs.h"
+//#include "../benchmarks/bubble.h"
+//#include "../benchmarks/crc.h"
+//#include "../benchmarks/fibcall.h"
+//#include "../benchmarks/gsm.h"
+//#include "../benchmarks/intmm.h"
+//#include "../benchmarks/insertsort.h"
+//#include "../benchmarks/jfdctint.h"
+//#include "../benchmarks/mpeg2.h"
+//#include "../benchmarks/vec_add.h"
+
+
+
+
+//#define PRINT
 
 //#define	USE_ADDER
 //#define USE_SUB
@@ -32,13 +48,23 @@
 #define DATA
 #define BUS
 
+
+
+
+
 //#define MEM_SIZE	1024//0xe000000
-#define MEM_SIZE	0x4000//3800000//1024//0xe000000
+#define MEM_SIZE	0x8000//3800000//1024//0xe000000
 //unsigned int MEM[MEM_SIZE];
 //unsigned char MEM0[MEM_SIZE];
 //unsigned char MEM1[MEM_SIZE];
 //unsigned char MEM2[MEM_SIZE];
 //unsigned char MEM3[MEM_SIZE];
+
+
+#ifdef FAULT_ANALYZER
+unsigned int MEM_COPY[MEM_SIZE];
+#endif
+
 
 //unsigned int TEMP[8];
 //

@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -g -O3 -Wall
 LDFLAGS=-lelf
-SOURCES=./src/emulator.c
+SOURCES=./src/emulator.c ./src/fault_injector.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=subleq
  

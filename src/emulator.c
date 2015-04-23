@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 01:53:08 PM JST
+* Last Modified on : Thu 23 Apr 2015 04:32:36 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -36,6 +36,18 @@ uint fault_singal;
 uint signal_bit;
 #endif
 
+
+#ifdef FAULT_ANALYZER
+unsigned int MEM_COPY[MEM_SIZE];
+void grep_initial_memory_map(unsigned int*);
+//void grep_fault_free_memory_map();
+//void generate_fault_information();
+//void generate_fault();
+//void inject_fault();
+//void out_of_mem_check();
+//void fault_control();
+#endif
+
 uint emulator (uint);
 void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
 uint get_value(uint);
@@ -57,6 +69,9 @@ void subleq_machine(ushort prog_count);
 
 int main(int argc, char **argv){
   uint prog_count = 0x2000;
+#ifdef FAULT_ANALYZER
+  grep_initial_memory_map(&prog_count);
+#endif
   uint status = emulator(prog_count >> 2);
   return status;
 }
