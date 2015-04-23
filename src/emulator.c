@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed 22 Apr 2015 08:16:58 PM JST
+* Last Modified on : Thu 23 Apr 2015 02:32:19 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -155,7 +155,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   int src1 = get_value (*rs);
   int src2 = get_value (*rt);
   int result = 0;//add (src1, src2); /*addu*/
-  uint ret_adr = *prog_count;// = *prog_count;
+  uint ret_addr = *prog_count;// = *prog_count;
   uint wb_loc = TEMP_REG;
 
   bool r_type = (*opcode == 0x00);
@@ -311,7 +311,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 #if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
   uint res_subleq = 0;
-  uint routine_adr = 0x0
+  uint routine_addr = 0x0
 #ifndef	USE_ADDER
 			     | ((addu_cond | addiu_cond) ? ADD_ROUTINE : 0x0)
 #endif
@@ -388,7 +388,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (subleq_cond) {
     write_value (subleq_src1, SRC1_LOC);
     write_value (subleq_src2, SRC2_LOC);
-    subleq_machine(routine_adr);
+    subleq_machine(routine_addr);
     res_subleq = get_value(DEST_LOC);
   }
 #endif
@@ -456,15 +456,15 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
   /*JR*/
-  uint ret_adr_jr = add2 (src1, -1);
+  uint ret_addr_jr = add2 (src1, -1);
 
   /*jal, j*/
-  uint link_adr = add2 (ret_adr, 1);
-  uint ret_adr_J = add2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
+  uint link_addr = add2 (ret_addr, 1);
+  uint ret_addr_J = add2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
 
 
   /*BNE BEQZ BLEZ*/
-  uint cond_br_adr = add2 (add2 (ret_adr, (sshort)*imm), -1);
+  uint cond_br_addr = add2 (add2 (ret_addr, (sshort)*imm), -1);
   bool check_eq = (src1 == src2)? true : false;
   bool src_eq_0 = (src1 == 0) ? true : false;
   bool src_gt_0 = (src1 > 0) ? true : false;
@@ -479,19 +479,19 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   bool cond_br_all = (bne_cond_temp | beq_cond_temp | beqz_cond_temp | bgez_cond_temp | blez_cond_temp | bltz_cond_temp | bgtz_cond_temp);
 
-  uint ret_adr_cond_br = (cond_br_all) ? cond_br_adr : ret_adr;
+  uint ret_addr_cond_br = (cond_br_all) ? cond_br_addr : ret_addr;
 
   /*lui*/
   int res_lui = (*imm << 16) | 0x0000;
   
-  int mem_adr_temp = add3 (src1, (sshort) *imm);
+  int mem_addr_temp = add3 (src1, (sshort) *imm);
   /*sw*/
-  uint mem_adr = (mem_adr_temp >> 2);
+  uint mem_addr = (mem_addr_temp >> 2);
   int res_sw = src2;
   /*LW*/
-  int res_lw = get_value(mem_adr);//src2;
+  int res_lw = get_value(mem_addr);//src2;
   /*SB*/
-  uchar byte_check = mem_adr_temp & 0x2;
+  uchar byte_check = mem_addr_temp & 0x2;
 
   uint res_sb0 = (res_lw & 0xFFFFFF00) | (0xFF & (src2 << 0));
   uint res_sb1 = (res_lw & 0xFFFF00FF) | (0xFF00 & (src2 << 8));
@@ -509,7 +509,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_lbu = (byte_check >> 1) ? ((byte_check & 0x1)? res_lbu3 : res_lbu2) : ((byte_check & 0x1)? res_lbu1 : res_lbu0);
 
   /*SH*/
-  uchar bit_check = mem_adr_temp & 0x1;
+  uchar bit_check = mem_addr_temp & 0x1;
   uint res_sh0 = (res_lw & 0xFFFF0000) | (0xFFFF & (src2 << 0));
   uint res_sh1 = (res_lw & 0x0000FFFF) | (0xFFFF0000 & (src2 << 16));
   uint res_sh = (bit_check)? res_sh1 : res_sh0;
@@ -519,21 +519,21 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_lhu1 = (res_lw & 0xFFFF0000) >> 16;
   uint res_lhu = (bit_check)? res_lhu1 : res_lhu0;
 
-  bool ret_adr_exp = (j_cond | jr_cond | jal_cond | bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond);
-  ret_adr = ((j_cond)? ret_adr_J : 0x0) |/*J*/
-	    ((jr_cond)? ret_adr_jr : 0x0) |/*JR*/
-	    ((jal_cond)? ret_adr_J : 0x0) |/*JAL*/
-	    ((bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond) ? ret_adr_cond_br : 0x0) |
+  bool ret_addr_exp = (j_cond | jr_cond | jal_cond | bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond);
+  ret_addr = ((j_cond)? ret_addr_J : 0x0) |/*J*/
+	    ((jr_cond)? ret_addr_jr : 0x0) |/*JR*/
+	    ((jal_cond)? ret_addr_J : 0x0) |/*JAL*/
+	    ((bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond) ? ret_addr_cond_br : 0x0) |
 #if 0
-	    ((bne_cond)? ret_adr_BNE : 0x0) |/*BNE*/
-	    ((beqz_cond)? ret_adr_BEQZ : 0x0) |/*BEQZ*/
-	    ((beq_cond)? ret_adr_BEQ : 0x0) |/*BEQ*/
-	    ((blez_cond)? ret_adr_BLEZ : 0x0) |/*BLEZ*/
-	    ((bltz_cond)? ret_adr_BLTZ : 0x0) |/*BLTZ*/
-	    ((bgez_cond)? ret_adr_BGEZ : 0x0) |/*BGEZ*/
-	    ((bgtz_cond)? ret_adr_BGTZ : 0x0) |/*BGTZ*/
+	    ((bne_cond)? ret_addr_BNE : 0x0) |/*BNE*/
+	    ((beqz_cond)? ret_addr_BEQZ : 0x0) |/*BEQZ*/
+	    ((beq_cond)? ret_addr_BEQ : 0x0) |/*BEQ*/
+	    ((blez_cond)? ret_addr_BLEZ : 0x0) |/*BLEZ*/
+	    ((bltz_cond)? ret_addr_BLTZ : 0x0) |/*BLTZ*/
+	    ((bgez_cond)? ret_addr_BGEZ : 0x0) |/*BGEZ*/
+	    ((bgtz_cond)? ret_addr_BGTZ : 0x0) |/*BGTZ*/
 #endif
-	    ((ret_adr_exp)? 0x0 : ret_adr);
+	    ((ret_addr_exp)? 0x0 : ret_addr);
 
   bool result_EXP = (j_cond | jr_cond
 #ifndef USE_SYS
@@ -585,7 +585,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((sra_cond | srav_cond)? res_srav : 0x0) | /*sra*//*sraV*/
 	   ((srl_cond | srlV_COND)? res_srlv : 0x0) | /*srl*/
 #endif
-	   ((jal_cond)? link_adr : 0x0) |/*JAL*/
+	   ((jal_cond)? link_addr : 0x0) |/*JAL*/
 	   ((lui_cond)? res_lui : 0x0) |/*LUI*/
 	   ((sw_cond)? res_sw : 0x0) |/*SW*/
 	   ((sb_cond)? res_sb : 0x0) | /*SB*/
@@ -601,12 +601,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     );
   bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlV_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
   bool wb_rt = (slti_cond | sltiu_cond | lw_cond | lbu_cond | lb_cond | lh_cond | lhu_cond | ori_cond | andi_cond | xori_cond | addiu_cond | lui_cond); 
-  bool wb_mem_adr = (sw_cond | sb_cond | sh_cond);
+  bool wb_mem_addr = (sw_cond | sb_cond | sh_cond);
 
   wb_loc = ((wb_temp_reg)? TEMP_REG : 0x0) | 
 	   ((wb_rd)? *rd : 0x0) |
 	   ((wb_rt)? *rt : 0x0) |
-	   ((wb_mem_adr)? mem_adr : 0x0) |
+	   ((wb_mem_addr)? mem_addr : 0x0) |
 #ifdef USE_MULT 
 	   ((mult_cond)? HI : 0x0) | /*mult*/
 #endif
@@ -624,7 +624,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   write_value (res_mult_lo, LO);
 #endif
   write_value (result, wb_loc);
-  *prog_count = ret_adr;
+  *prog_count = ret_addr;
 #ifdef PRINT
   printf(" RET_ADD: %x\n", *prog_count << 2);
 #endif
