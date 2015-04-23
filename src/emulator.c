@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed 22 Apr 2015 08:15:40 PM JST
+* Last Modified on : Thu 23 Apr 2015 09:41:40 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,13 +16,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../benchmarks/adpcm.h"
+//#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
 //#include "../benchmarks/bubble.h"
 //#include "../benchmarks/crc.h"
 //#include "../benchmarks/fibcall.h"
-//#include "../benchmarks/gsm.h"
+#include "../benchmarks/gsm.h"
 //#include "../benchmarks/intmm.h"
 //#include "../benchmarks/insertsort.h"
 //#include "../benchmarks/jfdctint.h"
