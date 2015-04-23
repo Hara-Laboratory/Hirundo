@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 09:41:40 AM JST
+* Last Modified on : Thu 23 Apr 2015 01:53:08 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -101,7 +101,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   int src1 = get_value (*rs);//signal-11, 32-bit
   int src2 = get_value (*rt);//signal-12, 32-bit
   int result = 0;//add (src1, src2); /*addu*/
-  uint ret_adr = *prog_count;// = *prog_count;//signal-13, 16-bit
+  uint ret_addr = *prog_count;// = *prog_count;//signal-13, 16-bit
   uint wb_loc = TEMP_REG;
 
   bool r_type = (*opcode == 0x00);//signal-14,bit
@@ -245,7 +245,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 #if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
   uint res_subleq = 0;
-  uint routine_adr = 0x0
+  uint routine_addr = 0x0
 #ifndef	USE_ADDER
 			     | ((addu_cond | addiu_cond) ? ADD_ROUTINE : 0x0)
 #endif
@@ -321,22 +321,22 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (subleq_cond) {
     write_value (subleq_inp1, SRC1_LOC);
     write_value (subleq_inp2, SRC2_LOC);
-    subleq_machine(routine_adr);
+    subleq_machine(routine_addr);
     res_subleq = get_value(DEST_LOC);
   }
 #endif
 
 
   /*JR*/
-  uint ret_adr_jr = add2 (src1, -1);//signal-80,16-bit
+  uint ret_addr_jr = add2 (src1, -1);//signal-80,16-bit
 
   /*jal, j*/
-  uint res_jal = add2 (ret_adr, 1);//signal-81,16-bit
-  uint ret_adr_j = add2 (((((*rs << 5) | *rt) << 16) | *imm), -1);//signal-82,16-bit
+  uint res_jal = add2 (ret_addr, 1);//signal-81,16-bit
+  uint ret_addr_j = add2 (((((*rs << 5) | *rt) << 16) | *imm), -1);//signal-82,16-bit
 
 
   /*BNE BEQZ BLEZ*/
-  uint cond_br_adr = add2 (add2 (ret_adr, (sshort)*imm), -1);//signal-83,16-bit
+  uint cond_br_addr = add2 (add2 (ret_addr, (sshort)*imm), -1);//signal-83,16-bit
   bool check_eq = (src1 == src2)? true : false;//signal-84,bit
   bool src_eq_0 = (src1 == 0) ? true : false;//signal-85,bit
   bool src_gt_0 = (src1 > 0) ? true : false;//signal-86,bit
@@ -351,19 +351,19 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
   bool br_cond_all = (bne_cond_temp | beq_cond_temp | beqz_cond_temp | bgez_cond_temp | blez_cond_temp | bltz_cond_temp | bgtz_cond_temp);//signal-94,bit
 
-  uint ret_adr_cond_branch = (br_cond_all) ? cond_br_adr : ret_adr;//signal-94,16-bit
+  uint ret_addr_cond_branch = (br_cond_all) ? cond_br_addr : ret_addr;//signal-94,16-bit
 
   /*lui*/
   int res_lui = (*imm << 16) | 0x0000;//signal-95,32-bit
   
-  int mem_adr_temp = add3 (src1, (sshort) *imm);//signal-96,16-bit
+  int mem_addr_temp = add3 (src1, (sshort) *imm);//signal-96,16-bit
   /*sw*/
-  uint mem_adr = (mem_adr_temp >> 2);//signal-97,16-bit
+  uint mem_addr = (mem_addr_temp >> 2);//signal-97,16-bit
   int res_sw = src2;//signal-98,32-bit
   /*LW*/
-  int res_lw = get_value(mem_adr);//src2;//signal-99,32-bit
+  int res_lw = get_value(mem_addr);//src2;//signal-99,32-bit
   /*SB*/
-  uchar byte_check = mem_adr_temp & 0x2;//signal-100,2-bit
+  uchar byte_check = mem_addr_temp & 0x2;//signal-100,2-bit
 
   uint res_sb0 = (res_lw & 0xFFFFFF00) | (0xFF & (src2 << 0));//signal-101,32-bit
   uint res_sb1 = (res_lw & 0xFFFF00FF) | (0xFF00 & (src2 << 8));//signal-102,32-bit
@@ -381,7 +381,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_lbu = (byte_check >> 1) ? ((byte_check & 0x1)? res_lbu3 : res_lbu2) : ((byte_check & 0x1)? res_lbu1 : res_lbu0);//signal-110,32-bit
 
   /*SH*/
-  uchar bit_check = mem_adr_temp & 0x1;//signal-111,1-bit
+  uchar bit_check = mem_addr_temp & 0x1;//signal-111,1-bit
   uint res_sh0 = (res_lw & 0xFFFF0000) | (0xFFFF & (src2 << 0));//signal-112,32-bit
   uint res_sh1 = (res_lw & 0x0000FFFF) | (0xFFFF0000 & (src2 << 16));//signal-113,32-bit
   uint res_sh = (bit_check)? res_sh1 : res_sh0;//signal-114,32-bit
@@ -391,12 +391,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_lhu1 = (res_lw & 0xFFFF0000) >> 16;//signal-116,32-bit
   uint res_lhu = (bit_check)? res_lhu1 : res_lhu0;//signal-117,32-bit
 
-  bool ret_adr_exp = (j_cond | jr_cond | jal_cond | bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond);//signal-118,bit
-  ret_adr = ((j_cond)? ret_adr_j : 0x0) |/*J*/
-	    ((jr_cond)? ret_adr_jr : 0x0) |/*JR*/
-	    ((jal_cond)? ret_adr_j : 0x0) |/*JAL*/
-	    ((bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond) ? ret_adr_cond_branch : 0x0) |
-	    ((ret_adr_exp)? 0x0 : ret_adr);//signal-119,16-bit
+  bool ret_addr_exp = (j_cond | jr_cond | jal_cond | bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond);//signal-118,bit
+  ret_addr = ((j_cond)? ret_addr_j : 0x0) |/*J*/
+	    ((jr_cond)? ret_addr_jr : 0x0) |/*JR*/
+	    ((jal_cond)? ret_addr_j : 0x0) |/*JAL*/
+	    ((bne_cond | beqz_cond | beq_cond | blez_cond | bltz_cond | bgez_cond | bgtz_cond) ? ret_addr_cond_branch : 0x0) |
+	    ((ret_addr_exp)? 0x0 : ret_addr);//signal-119,16-bit
 
   bool result_exp = (j_cond | jr_cond
 #ifndef USE_SYS
@@ -458,12 +458,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     );//signal-122,bit
   bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlv_cond | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);//signal-123,bit  
   bool wb_rt = (slti_cond | sltiu_cond | lw_cond | lbu_cond | lb_cond | lh_cond | lhu_cond | ori_cond | andi_cond | xori_cond | addiu_cond | lui_cond);//signal-123,bit 
-  bool wb_mem_adr = (sw_cond | sb_cond | sh_cond);//signal-124,bit
+  bool wb_mem_addr = (sw_cond | sb_cond | sh_cond);//signal-124,bit
 
   wb_loc = ((wb_temp_reg)? TEMP_REG : 0x0) | 
 	   ((wb_rd)? *rd : 0x0) |
 	   ((wb_rt)? *rt : 0x0) |
-	   ((wb_mem_adr)? mem_adr : 0x0) |
+	   ((wb_mem_addr)? mem_addr : 0x0) |
 #ifdef USE_MULT 
 	   ((mult_cond)? HI : 0x0) | /*MULT*/
 #endif
@@ -481,7 +481,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   write_value (res_mult_lo, LO);
 #endif
   write_value (result, wb_loc);
-  *prog_count = ret_adr;//signal-128,16-bit
+  *prog_count = ret_addr;//signal-128,16-bit
 }
 
 
