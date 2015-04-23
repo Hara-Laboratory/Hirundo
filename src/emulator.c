@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 02:32:19 PM JST
+* Last Modified on : Thu 23 Apr 2015 06:37:00 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -30,11 +30,11 @@
 #include "../benchmarks/vec_add.h"
 
 #ifdef PROFILE
-int add = 0;
-int sub = 0;
+int addition = 0;
+int subtraction = 0;
 int shift = 0;
 int logic = 0;
-int mult = 0;
+int multiplication = 0;
 int slt_u = 0;
 int jump = 0;
 int load = 0;
@@ -75,16 +75,16 @@ int main(int argc, char **argv){
 #endif
 
 #ifdef PROFILE
-  printf("Addition: %d\n", add);
-  printf("Subtraction: %d\n", sub);
-  printf("All shift: %d\n", shift);
-  printf("All logic: %d\n", logic);
-  printf("All multiplication: %d\n", mult);
-  printf("All slt and sltu: %d\n", slt_u);
-  printf("All jump: %d\n", jump);
-  printf("All load from memory: %d\n", load);
-  printf("All store to memory: %d\n", store);
-  printf("All conditional branch: %d\n", branch);
+  printf("Addition (add, addu, addi, addiu): %d\n", addition);
+  printf("Subtraction (sub, subu): %d\n", subtraction);
+  printf("Shift (sll, sllv, srl, srlv, sra, srav): %d\n", shift);
+  printf("Logic (and, andi, or, ori, xor, xori, nor): %d\n", logic);
+  printf("Multiplication (mult, multu, mflo, mfhi, mtlo, mthi): %d\n", multiplication);
+  printf("Set-less-than: (slt, slti. sltu, sltui ...): %d\n", slt_u);
+  printf("Jump (j, jal, ...): %d\n", jump);
+  printf("Load (lw, lh, lhu, lb, lbu): %d\n", load);
+  printf("Store (sw, sh, sb): %d\n", store);
+  printf("Conditional branch (beq, beqz, ble, ....): %d\n", branch);
 #endif
 
 
@@ -209,11 +209,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 #ifdef PROFILE
-  if (addu_cond | addiu_cond) add++;
-  if (subu_cond) sub++;
+  if (addu_cond | addiu_cond) addition++;
+  if (subu_cond) subtraction++;
   if (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) logic++;
   if (sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) shift++;
-  if (mult_cond | mfhi_cond | mflo_cond) mult++;
+  if (mult_cond | mfhi_cond | mflo_cond) multiplication++;
   if (slt_cond | sltu_cond | slti_cond | sltiu_cond) slt_u++;
   if (jr_cond | j_cond | sys_cond | jal_cond) jump++;
   if (lb_cond | lh_cond | lw_cond | lbu_cond | lhu_cond) load++;
