@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 06:37:34 PM JST
+* Last Modified on : Fri 24 Apr 2015 09:33:37 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -15,7 +15,7 @@
 #define PRINT
 
 
-//#define PROFILE
+#define PROFILE
 
 
 //#define DEBUG_SUB
@@ -28,16 +28,16 @@
 
 
 
-//#define	USE_ADDER
-//#define USE_SUB
-//#define USE_MULT
-//#define USE_MFLO
-//#define USE_MFHI
-//#define USE_MTLO
-//#define USE_MTHI
-//#define USE_SHIFTER
-//#define USE_SYS
-//#define USE_SET_LESS_THAN
+#define	USE_ADDER
+#define USE_SUB
+#define USE_MULT
+#define USE_MFLO
+#define USE_MFHI
+#define USE_MTLO
+#define USE_MTHI
+#define USE_SHIFTER
+#define USE_SYS
+#define USE_SET_LESS_THAN
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000

@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 06:37:00 PM JST
+* Last Modified on : Fri 24 Apr 2015 09:36:35 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -75,6 +75,7 @@ int main(int argc, char **argv){
 #endif
 
 #ifdef PROFILE
+  printf("\n=====================\nInstruction Profiling\n=====================\n");
   printf("Addition (add, addu, addi, addiu): %d\n", addition);
   printf("Subtraction (sub, subu): %d\n", subtraction);
   printf("Shift (sll, sllv, srl, srlv, sra, srav): %d\n", shift);
