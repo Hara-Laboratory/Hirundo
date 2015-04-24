@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 24 Apr 2015 09:36:35 AM JST
+* Last Modified on : Fri 24 Apr 2015 09:46:12 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -81,7 +81,7 @@ int main(int argc, char **argv){
   printf("Shift (sll, sllv, srl, srlv, sra, srav): %d\n", shift);
   printf("Logic (and, andi, or, ori, xor, xori, nor): %d\n", logic);
   printf("Multiplication (mult, multu, mflo, mfhi, mtlo, mthi): %d\n", multiplication);
-  printf("Set-less-than: (slt, slti. sltu, sltui ...): %d\n", slt_u);
+  printf("Set-less-than (slt, slti. sltu, sltui ...): %d\n", slt_u);
   printf("Jump (j, jal, ...): %d\n", jump);
   printf("Load (lw, lh, lhu, lb, lbu): %d\n", load);
   printf("Store (sw, sh, sb): %d\n", store);
