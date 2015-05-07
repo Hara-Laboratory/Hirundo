@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 23 Apr 2015 03:59:40 PM JST
+* Last Modified on : Thu 07 May 2015 11:21:22 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -26,10 +26,6 @@
 //#include "../benchmarks/vec_add.h"
 
 
-
-
-//#define PRINT
-
 //#define	USE_ADDER
 //#define USE_SUB
 //#define USE_MULT
@@ -49,6 +45,10 @@
 #define BUS
 
 
+void createNewMem (void);
+void faultFreeTrace (unsigned int, unsigned int, unsigned int, int, unsigned int);
+void updateMem (void);
+
 
 
 
@@ -64,7 +64,6 @@
 #ifdef FAULT_ANALYZER
 unsigned int MEM_COPY[MEM_SIZE];
 #endif
-
 
 //unsigned int TEMP[8];
 //
