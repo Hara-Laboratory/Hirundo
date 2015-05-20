@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 07 May 2015 02:23:35 PM JST
+* Last Modified on : Fri May  8 12:29:42 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -77,7 +77,7 @@ int main(int argc, char **argv){
   unsigned int status = emulator (prog_count >> 2, injectFault);//fault free run
 #ifdef FAULT_ANALYZER
   updateMem ();
-  printf("TEST OK\n");
+  //printf("TEST OK\n");
   injectFault = true;
   //unsigned int statusDup = emulator (prog_count >> 2, injectFault);//fault injected
 #endif

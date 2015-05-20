@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Thu 07 May 2015 01:58:04 PM JST
+* Last Modified on : Fri May  8 12:30:18 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -48,7 +48,7 @@ unsigned int copyMem (bool *start) {
 
   if (currMem != NULL) {
     inst = currMem->val;
-    printf("%8.8x\n",currMem->val);
+    //printf("%8.8x\n",currMem->val);
     currMem = currMem->next;
   }
   //printf("TEST OK\n");
