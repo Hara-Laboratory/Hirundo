@@ -4,7 +4,7 @@
 
 * Created on : 23-04-2015
 
-* Last Modified on : Fri May  8 12:30:07 2015
+* Last Modified on : Thu 04 Jun 2015 09:47:33 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -59,7 +59,8 @@ void updateMem (){
   int i;
   bool start = true;
   for (i = 0; i < MEM_SIZE; i++) {
-    write_value (copyMem(&start), i);
+    unsigned int inst = copyMem(&start);
+    write_value (inst, i);
   }
 }
 
@@ -68,8 +69,21 @@ void grep_initial_memory_map(unsigned int *prog_count){
   prog_counter_copy = *prog_count;
 }
 
-void grep_information();
-void get_singal();
-void get_bit();
-void generate_fault();
-void inject_fault();
+
+void faultInjection (unsigned int *signal, unsigned int mask, unsigned char faultType, bool injectFault) {
+  if ((faultType == 0x00) & (injectFault)) {//st-1
+    *signal = *signal | mask;
+  }
+  else if ((faultType == 0x01) & (injectFault)) {//st-0
+    *signal = *signal & (~mask);
+  }
+  else if ((faultType == 0x02) & (injectFault)) {//transient fault,bit flip
+    *signal = *signal ^ mask;
+  }
+}
+
+//void grep_information();
+//void get_singal();
+//void get_bit();
+//void generate_fault();
+//void inject_fault();

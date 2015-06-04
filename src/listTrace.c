@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Thu 07 May 2015 11:37:18 AM JST
+* Last Modified on : Tue 02 Jun 2015 10:30:45 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -32,18 +32,21 @@ void createTrace (unsigned int cycleNo, unsigned int progCount, unsigned int ins
 
 
 void addToTrace(unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc) {
-  if(headTrace == NULL)
+  if(headTrace == NULL){
     createTrace(cycleNo, progCount, inst, result, wbLoc);
-  struct listTrace *ptr = (struct listTrace*)malloc(sizeof(struct listTrace));
-  ptr->cycleNo = cycleNo;
-  ptr->progCount = progCount;
-  ptr->inst = inst;
-  ptr->result = result;
-  ptr->wbLoc = wbLoc;
-  ptr->next = NULL;
+  }
+  else {
+    struct listTrace *ptr = (struct listTrace*)malloc(sizeof(struct listTrace));
+    ptr->cycleNo = cycleNo;
+    ptr->progCount = progCount;
+    ptr->inst = inst;
+    ptr->result = result;
+    ptr->wbLoc = wbLoc;
+    ptr->next = NULL;
   
-  currTrace->next = ptr;
-  currTrace = ptr;
+    currTrace->next = ptr;
+    currTrace = ptr;
+  }
 }
 
 

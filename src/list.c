@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Fri May  1 15:57:29 2015
+* Last Modified on : Tue 02 Jun 2015 10:32:55 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -28,14 +28,17 @@ void create_list(int val) {
 
 
 void add_to_list(int val) {
-  if(head == NULL)
+  if(head == NULL){
     create_list(val);
-  struct list *ptr = (struct list*)malloc(sizeof(struct list));
-  ptr->val = val;
-  ptr->next = NULL;
+  }
+  else {
+    struct list *ptr = (struct list*)malloc(sizeof(struct list));
+    ptr->val = val;
+    ptr->next = NULL;
   
-  curr->next = ptr;
-  curr = ptr;
+    curr->next = ptr;
+    curr = ptr;
+  }
 }
 
 

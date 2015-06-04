@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri May  8 12:29:42 2015
+* Last Modified on : Thu 04 Jun 2015 10:20:50 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -66,6 +66,7 @@ uint and (uint, uint);
 uint xor (uint, uint);
 int64_t mult (int, int);
 void subleq_machine(ushort prog_count);
+void printReg(void);
 #endif
 
 int main(int argc, char **argv){
@@ -75,13 +76,17 @@ int main(int argc, char **argv){
   createNewMem ();
 #endif
   unsigned int status = emulator (prog_count >> 2, injectFault);//fault free run
+  printf("Fault Free Execution");
+  printReg();
 #ifdef FAULT_ANALYZER
   updateMem ();
   //printf("TEST OK\n");
   injectFault = true;
-  //unsigned int statusDup = emulator (prog_count >> 2, injectFault);//fault injected
+  unsigned int statusDup = emulator (prog_count >> 2, injectFault);//fault injected
+  printf("\n\nExecution After Fault Injection");
+  printReg();
 #endif
-  return (status/* - statusDup*/);
+  return (status - statusDup);
 }
 
 
@@ -592,4 +597,13 @@ void subleq_machine(ushort prog_count) {
     write_value (src2, b);
     prog_count = 0x7FF & ((src2 > 0) ? prog_count + 0x3 : c);
   }
+}
+void printReg(void){
+  int i;
+  for (i = 0; i < 32; i++){
+    if ((i % 4) == 0)
+      printf("\n");
+    printf("%8.8x\t",get_value(i));
+  }
+  printf("\n");
 }

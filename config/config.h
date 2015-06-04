@@ -4,13 +4,14 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 07 May 2015 11:21:22 AM JST
+* Last Modified on : Thu 04 Jun 2015 09:54:26 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
 ------------------------------------------*/
 
 #include <stdio.h>
+#include <stdbool.h>
 
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
@@ -48,6 +49,7 @@
 void createNewMem (void);
 void faultFreeTrace (unsigned int, unsigned int, unsigned int, int, unsigned int);
 void updateMem (void);
+void faultInjection(unsigned int*, unsigned int, unsigned char, bool);
 
 
 

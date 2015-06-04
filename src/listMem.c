@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Fri May  8 12:30:18 2015
+* Last Modified on : Tue 02 Jun 2015 10:27:48 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -28,13 +28,16 @@ void createMem (int val) {
 
 
 void addToMem (int val) {
-  if(headMem == NULL)
+  if(headMem == NULL){
     createMem (val);
-  struct listMem *ptr = (struct listMem*)malloc(sizeof(struct listMem));
-  ptr->val = val;
-  ptr->next = NULL;
-  currMem->next = ptr;
-  currMem = ptr;
+  }
+  else {
+    struct listMem *ptr = (struct listMem*)malloc(sizeof(struct listMem));
+    ptr->val = val;
+    ptr->next = NULL;
+    currMem->next = ptr;
+    currMem = ptr;
+  }
 }
 
 
