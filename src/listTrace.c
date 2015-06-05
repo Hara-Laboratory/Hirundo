@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Tue 02 Jun 2015 10:30:45 AM JST
+* Last Modified on : Fri 05 Jun 2015 10:50:56 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -28,12 +28,14 @@ void createTrace (unsigned int cycleNo, unsigned int progCount, unsigned int ins
   ptr->next = NULL;
 
   headTrace = currTrace = ptr;
+  //printf("%8.8x\n",currTrace);
 }
 
 
-void addToTrace(unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc) {
-  if(headTrace == NULL){
+void addToTrace (unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc, unsigned int *structLocation) {
+  if (headTrace == NULL){
     createTrace(cycleNo, progCount, inst, result, wbLoc);
+    //printf("%8.8x\n",headTrace);
   }
   else {
     struct listTrace *ptr = (struct listTrace*)malloc(sizeof(struct listTrace));
@@ -47,11 +49,46 @@ void addToTrace(unsigned int cycleNo, unsigned int progCount, unsigned int inst,
     currTrace->next = ptr;
     currTrace = ptr;
   }
+  //printf("%8.8x\n",headTrace);
 }
 
 
-//need to modify for fault injector
-struct listTrace* searchTrace (int val, struct listTrace **prev) {
+bool checkTrace (unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc) {
+  bool error = false;
+  //bool found = false;
+  //printf("%8.8x\n",headTrace);
+  struct listTrace *ptrTrace = headTrace;
+
+  //printf("%x\n",headTrace);
+  //if (headTrace)
+    //printf("HEAD CHECKK\n");
+
+  //currTrace = headTrace;
+
+  while (ptrTrace != NULL) {
+    //printf("CHECK POINT\n");
+    if (ptrTrace->cycleNo == cycleNo){
+      bool progCountError = (ptrTrace->progCount != progCount) ? true : false;
+      bool instError = (ptrTrace->inst != inst) ? true : false;
+      bool resultError = (ptrTrace->result != result) ? true : false;
+      bool wbLocError = (ptrTrace->wbLoc != wbLoc) ? true : false;
+      error = progCountError | instError | resultError | wbLocError;
+      //printf("fault detected\n");
+      //found = true;
+      break;
+    }
+    else {
+      ptrTrace = ptrTrace->next;
+    }
+  }
+
+
+  return error;
+  
+}
+
+/*
+struct listTrace* searchTrace (int cycleNo, struct listTrace **prev) {
   struct listTrace *ptr = headTrace;
   struct listTrace *tmp = NULL;
   bool found = false;
@@ -75,9 +112,10 @@ struct listTrace* searchTrace (int val, struct listTrace **prev) {
   else {
     return NULL;
   }
-}
+}*/
 
-
+#if 0
+//need to modify for fault injector
 int deleteTrace (int val) {
   struct listTrace *prev = NULL;
   struct listTrace *del = NULL;
@@ -100,13 +138,13 @@ int deleteTrace (int val) {
   del = NULL;
   return 0;
 }
-
+#endif
 
 void printTrace (void) {
   struct listTrace *ptr = headTrace;
   printf("\n -------Printing list Start------- \n");
   while(ptr != NULL) {
-    printf("\n [%d] \n",ptr->val);
+    printf("\n [%d] \n",ptr->cycleNo);
     ptr = ptr->next;
   }
   printf("\n -------Printing list End------- \n");

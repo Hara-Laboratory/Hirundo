@@ -4,7 +4,7 @@
 
 * Created on : 23-04-2015
 
-* Last Modified on : Thu 04 Jun 2015 09:47:33 AM JST
+* Last Modified on : Fri 05 Jun 2015 10:50:57 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -49,8 +49,16 @@ void createNewMem () {
   }
 } 
 
-void faultFreeTrace (unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc) {
-  addToTrace(cycleNo, progCount, inst, result, wbLoc);
+void faultFreeTrace (unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc, unsigned int *structLocation) {
+  unsigned int inFunctionStructLocation;
+  addToTrace(cycleNo, progCount, inst, result, wbLoc, &inFunctionStructLocation);
+  *structLocation = inFunctionStructLocation;
+}
+
+
+bool checkFault (unsigned int cycleNo, unsigned int progCount, unsigned int inst, int result, unsigned int wbLoc){
+  bool error = checkTrace (cycleNo, progCount, inst, result, wbLoc);
+  return error;
 }
 
 

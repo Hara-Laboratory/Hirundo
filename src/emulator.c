@@ -4,13 +4,14 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 04 Jun 2015 10:20:50 AM JST
+* Last Modified on : Fri 05 Jun 2015 11:30:37 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
 ------------------------------------------*/
 
 #include "../config/config.h"
+#include "../config/listTrace.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -34,6 +35,8 @@
 uint fault_value;
 uint fault_singal;
 uint signal_bit;
+struct listTrace *headTrace;
+struct listTrace *currTrace;
 #endif
 
 
@@ -79,11 +82,15 @@ int main(int argc, char **argv){
   printf("Fault Free Execution");
   printReg();
 #ifdef FAULT_ANALYZER
+  //printTrace();
+  //printf("%8.8x\n",headTrace);
+  struct listTrace *tempHeadTrace = headTrace;
   updateMem ();
-  //printf("TEST OK\n");
+  headTrace = tempHeadTrace;
+  //printTrace();
   injectFault = true;
   unsigned int statusDup = emulator (prog_count >> 2, injectFault);//fault injected
-  printf("\n\nExecution After Fault Injection");
+  printf("\nExecution After Fault Injection");
   printReg();
 #endif
   return (status - statusDup);
@@ -104,10 +111,18 @@ uint emulator (uint prog_count, bool injectFault) {
   uchar sa;
 
   unsigned int cycleCount = 0;
+  //if (injectFault)
+    //printTrace();
+
 
   while (emulator_status == NORMAL){
     /*fetch instructions*/
     instruction = get_value (prog_count);//signal-1, 32-bit
+/*
+    if (injectFault){
+      unsigned int error = 0x1;
+      instruction = instruction | error; //for sa1
+    }*/
     prog_count_1 = prog_count_1 + 1;//signal-2, 32-bit
     prog_count = prog_count_1;//signal-3,32-bit
     exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &emulator_status, injectFault, cycleCount);
@@ -199,6 +214,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   ((or_cond | ori_cond) ? res_or : 0x0) |
 		   ((xor_cond | xori_cond) ? res_xor : 0x0) |
 		   ((nor_cond) ? res_nor : 0x0);//signal-65,32-bit
+
+  if (injectFault){
+    unsigned int error = 0x1;
+    res_logic = res_logic | error; //for sa1
+  }
 
   bool subleq_cond = false 
 #ifndef USE_ADDER
@@ -514,11 +534,17 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   *prog_count = ret_addr;//signal-128,16-bit
 
   if (!injectFault) {
-    faultFreeTrace (cycleCount, *prog_count, instruction, result, wb_loc);
+    unsigned int structLocation = 0;
+    faultFreeTrace (cycleCount, *prog_count, instruction, result, wb_loc, &structLocation);
   }
-  //if (injectFault) {
+  if (injectFault) {
+    bool error = checkFault (cycleCount, *prog_count, instruction, result, wb_loc);
+    if (error){
+      *emulator_status = FINISH;
+      printf ("Fault detected @ cycle %8.8x\n", cycleCount);
+    }
     //compare the result
-  //}
+  }
 }
 
 

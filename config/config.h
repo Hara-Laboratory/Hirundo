@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 04 Jun 2015 09:54:26 AM JST
+* Last Modified on : Fri 05 Jun 2015 11:14:20 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -27,16 +27,16 @@
 //#include "../benchmarks/vec_add.h"
 
 
-//#define	USE_ADDER
-//#define USE_SUB
-//#define USE_MULT
-//#define USE_MFLO
-//#define USE_MFHI
-//#define USE_MTLO
-//#define USE_MTHI
-//#define USE_SHIFTER
-//#define USE_SYS
-//#define USE_SET_LESS_THAN
+#define	USE_ADDER
+#define USE_SUB
+#define USE_MULT
+#define USE_MFLO
+#define USE_MFHI
+#define USE_MTLO
+#define USE_MTHI
+#define USE_SHIFTER
+#define USE_SYS
+#define USE_SET_LESS_THAN
 
 
 #define FAULT_ANALYZER
@@ -47,9 +47,10 @@
 
 
 void createNewMem (void);
-void faultFreeTrace (unsigned int, unsigned int, unsigned int, int, unsigned int);
+void faultFreeTrace (unsigned int, unsigned int, unsigned int, int, unsigned int, unsigned int*);
 void updateMem (void);
 void faultInjection(unsigned int*, unsigned int, unsigned char, bool);
+bool checkFault (unsigned int, unsigned int, unsigned int, int, unsigned int);
 
 
 
