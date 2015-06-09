@@ -4,7 +4,7 @@
 
 * Created on : 01-05-2015
 
-* Last Modified on : Thu 04 Jun 2015 12:09:26 PM JST
+* Last Modified on : Sat 06 Jun 2015 03:55:39 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../config/listMem.h"
-#include "../config/config.h"
+//#include "../config/config.h"
 
 struct listMem *headMem = NULL;
 struct listMem *currMem = NULL;
@@ -107,6 +107,18 @@ int deleteMemory (int val) {
   free(del);
   del = NULL;
   return 0;
+}
+
+
+void delListMem (void) {
+  currMem = headMem;
+  struct listMem *delMem = NULL;
+
+  while (currMem != NULL){
+    delMem = currMem;
+    currMem = currMem->next;
+    free(delMem);
+  }
 }
 
 

@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 05 Jun 2015 11:30:37 AM JST
+* Last Modified on : Sat 06 Jun 2015 04:26:46 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,6 +12,7 @@
 
 #include "../config/config.h"
 #include "../config/listTrace.h"
+#include "../config/listMem.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -78,22 +79,37 @@ int main(int argc, char **argv){
   bool injectFault = false;
   createNewMem ();
 #endif
-  unsigned int status = emulator (prog_count >> 2, injectFault);//fault free run
-  printf("Fault Free Execution");
-  printReg();
+  unsigned int cycleCount = emulator (prog_count >> 2, injectFault);//fault free run
+  //printf("Fault Free Execution");
+  //printReg();
 #ifdef FAULT_ANALYZER
   //printTrace();
   //printf("%8.8x\n",headTrace);
+
+  //struct listMem *tempHeadMem = headMem;
   struct listTrace *tempHeadTrace = headTrace;
   updateMem ();
+  //printMem();
+  delListMem();
+  //printMem();
   headTrace = tempHeadTrace;
   //printTrace();
   injectFault = true;
-  unsigned int statusDup = emulator (prog_count >> 2, injectFault);//fault injected
-  printf("\nExecution After Fault Injection");
-  printReg();
+  unsigned int cycleCountDup = emulator (prog_count >> 2, injectFault);//fault injected
+  //printf("\nExecution After Fault Injection");
+  //printReg();
+  if (cycleCount == cycleCountDup){
+    printf("Fault has no effect on the program\n");
+    printf("Total number of cycles: 0x%8.8x\n", cycleCount);
+  }
+  else {
+    printf("Fault stop the program execution\n");
+    printf("Total number of cycles: %d\n", cycleCount);
+    printf("Number of cycles (fault free): %d\n", cycleCountDup);
+    printf("Stopped before: %d\n", (cycleCount - cycleCountDup));
+  }
 #endif
-  return (status - statusDup);
+  return (cycleCount - cycleCountDup);
 }
 
 
@@ -129,7 +145,7 @@ uint emulator (uint prog_count, bool injectFault) {
     cycleCount++;
   }
   prog_count_1 = prog_count_1 & 0x1; 
-  return prog_count_1;//emulator_status;
+  return cycleCount;//emulator_status;
 }
 
 void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, uchar *rd, ushort *imm, uchar *sa, uint *prog_count, uint *emulator_status, bool injectFault, unsigned int cycleCount){
@@ -216,7 +232,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   ((nor_cond) ? res_nor : 0x0);//signal-65,32-bit
 
   if (injectFault){
-    unsigned int error = 0x1;
+    unsigned int error = 0x00000001;
     res_logic = res_logic | error; //for sa1
   }
 
@@ -541,7 +557,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     bool error = checkFault (cycleCount, *prog_count, instruction, result, wb_loc);
     if (error){
       *emulator_status = FINISH;
-      printf ("Fault detected @ cycle %8.8x\n", cycleCount);
+      //printf ("Fault detected @ cycle %8.8x\n", cycleCount);
     }
     //compare the result
   }
@@ -628,7 +644,7 @@ void printReg(void){
   int i;
   for (i = 0; i < 32; i++){
     if ((i % 4) == 0)
-      printf("\n");
+      printf("\n  ");
     printf("%8.8x\t",get_value(i));
   }
   printf("\n");
