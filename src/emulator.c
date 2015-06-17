@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Sat 06 Jun 2015 04:26:46 PM JST
+* Last Modified on : Mon Jun 15 11:53:12 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#include "../benchmarks/adpcm.h"
+#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
 //#include "../benchmarks/bubble.h"
@@ -29,7 +29,7 @@
 //#include "../benchmarks/insertsort.h"
 //#include "../benchmarks/jfdctint.h"
 //#include "../benchmarks/mpeg2.h"
-#include "../benchmarks/vec_add.h"
+//#include "../benchmarks/vec_add.h"
 
 
 #ifdef FAULT_ANALYZER
@@ -100,7 +100,7 @@ int main(int argc, char **argv){
   //printReg();
   if (cycleCount == cycleCountDup){
     printf("Fault has no effect on the program\n");
-    printf("Total number of cycles: 0x%8.8x\n", cycleCount);
+    printf("Total number of cycles: %d\n", cycleCount);
   }
   else {
     printf("Fault stop the program execution\n");
@@ -223,6 +223,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_and = and (src1, logici_inp);//signal-61,32-bit
   uint res_or = or (src1, logici_inp);//signal-62,32-bit
   uint res_xor = xor (src1, logici_inp);//signal-63,32-bit
+
+  if (injectFault){
+    unsigned int error = 0x00000001;
+    res_xor = res_xor | error; //for sa1
+  }
+
   /*NOR*/
   uint res_nor = ~res_or;//signal-64,32-bit
 
@@ -231,10 +237,12 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   ((xor_cond | xori_cond) ? res_xor : 0x0) |
 		   ((nor_cond) ? res_nor : 0x0);//signal-65,32-bit
 
+/*
   if (injectFault){
     unsigned int error = 0x00000001;
     res_logic = res_logic | error; //for sa1
   }
+*/
 
   bool subleq_cond = false 
 #ifndef USE_ADDER
