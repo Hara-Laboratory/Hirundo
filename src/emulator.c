@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 24 Apr 2015 09:46:12 AM JST
+* Last Modified on : Mon 13 Jul 2015 09:30:58 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -59,13 +59,17 @@ uint and (uint, uint);
 uint xor (uint, uint);
 int64_t mult (int, int);
 void subleq_machine(ushort prog_count);
+unsigned int get_value_reg (unsigned int);
+void write_value_reg (int, unsigned int);
 
 
 int main(int argc, char **argv){
   uint prog_count = 0x2000;
+  int i;
+  for (i = 0; i < 32; i++)
+     regFile[i] = 0;
   uint status = emulator(prog_count >> 2);
 #ifdef PRINT
-  int i;
   printf("========\nREG FILE\n========\n");
   for (i = 0; i < 32; i++){
     printf("%d\t",get_value(i));
@@ -88,22 +92,6 @@ int main(int argc, char **argv){
   printf("Conditional branch (beq, beqz, ble, ....): %d\n", branch);
 #endif
 
-
-#if 0
-  printf("=========\nPRINT MEM\n=========\n");
-  for (i = 0; i < 15; i++)
-    printf("%d\t", ADD[i]);
-  printf("\n");
-  for (i = ADD_ROUTINE; i < ADD_ROUTINE + 15; i++)
-    printf("%d\t", MEM[i]);
-  printf("\n");
-#endif
-#if 0
-  printf("=========\nPRINT MEM\n=========\n");
-  for (i = 0x17f5; i < 0x17f5 + 10; i++)
-    printf("%d\t", MEM[i]);
-  printf("\n");
-#endif
   return status;
 }
 
@@ -152,9 +140,17 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   *funct = instruction & 0X0000003F;
   *imm = instruction & 0xFFFF;
 
+  /*FIXME: will remove later*/
+  int i;
+  for (i = 0; i < 32; i++){
+    regFile[i] = MEM[i];
+  }
+  /*FIXME: will remove later*/
 
-  int src1 = get_value (*rs);
-  int src2 = get_value (*rt);
+  //int src1 = get_value (*rs);
+  //int src2 = get_value (*rt);
+  int src1 = get_value_reg (*rs);
+  int src2 = get_value_reg (*rt);
   int result = 0;//add (src1, src2); /*addu*/
   uint ret_addr = *prog_count;// = *prog_count;
   uint wb_loc = TEMP_REG;
@@ -491,6 +487,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   int res_sw = src2;
   /*LW*/
   int res_lw = get_value(mem_addr);//src2;
+  //FIXME remove this get_value with local variable will cause faster execution
   /*SB*/
   uchar byte_check = mem_addr_temp & 0x2;
 
@@ -616,13 +613,14 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   /*syscall*/
 #ifdef USE_SYS
   int syscall_exit = get_value(2);
+  //FIXME remove this get_value, save the result in a local variable or global variable
   *emulator_status = (sys_cond & (syscall_exit == 10)) ? FINISH : NORMAL;
 #else
   *emulator_status = (sys_cond & (res_subleq == 10)) ? FINISH : NORMAL;
 #endif 
 
 #ifdef USE_MULT
-  write_value (res_mult_lo, LO);
+  write_value (res_mult_lo, LO);//FIXME remove this write_value
 #endif
   write_value (result, wb_loc);
   *prog_count = ret_addr;
@@ -645,6 +643,13 @@ void write_value(int value, uint location){
   MEM[location] = value;
 }
 
+uint get_value_reg (unsigned int location){
+  return regFile[location];
+}
+
+void write_value_reg (int value, unsigned int location) {
+  regFile[location] = value;
+}
 
 int add_prev (int a, int b){
   return a + b;

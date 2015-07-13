@@ -1,4 +1,4 @@
-CC=gcc
+CC=$(HOME)/toolchains/bin/gcc
 CFLAGS=-c -g -O3 -Wall
 LDFLAGS=-lelf
 SOURCES=./src/emulator.c
