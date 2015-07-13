@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 24 Apr 2015 09:46:12 AM JST
+* Last Modified on : Mon 13 Jul 2015 09:51:09 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -711,5 +711,27 @@ void subleq_machine(ushort prog_count) {
 
     write_value (src2, b);
     prog_count = 0x7FF & ((src2 > 0) ? prog_count + 0x3 : c);
+  }
+}
+
+
+
+
+
+void extended_subleq_machine (unsigned int prog_count) {
+  while (prog_count < 0) {
+    unsigned int a = get_value (prog_count);
+    unsigned int b = get_value (prog_count + 0x1);
+    unsigned int c = get_value (prog_count + 0x2);
+
+    signed int src1 = get_value (a);
+    signed int src2 = get_value (b);
+
+/*    if (subleq) {
+    }
+    else if (extended_subleq) {
+    }
+    else {//xor logic
+    }*/
   }
 }
