@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon 13 Jul 2015 09:51:09 AM JST
+* Last Modified on : Mon Jul 13 16:28:44 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -42,6 +42,7 @@ int store = 0;
 int branch = 0;
 #endif
 
+unsigned int bitReversal (unsigned int);// {
 uint emulator (uint);
 void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
 uint get_value(uint);
@@ -719,19 +720,78 @@ void subleq_machine(ushort prog_count) {
 
 
 void extended_subleq_machine (unsigned int prog_count) {
-  while (prog_count < 0) {
+  while (prog_count == 0) {
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);
-    unsigned int c = get_value (prog_count + 0x2);
+    signed int c = get_value (prog_count + 0x2);
 
     signed int src1 = get_value (a);
     signed int src2 = get_value (b);
 
-/*    if (subleq) {
+    bool subleq = (c > 0);
+    bool extended_subleq = (c < 0);
+    //bool xor_logic = ((prog_count & 0x3) == 2);
+
+    if (subleq) {
+      src2 = src2 - src1;
+      prog_count = ((src2 > 0) ? prog_count + 0x3 : c);
     }
     else if (extended_subleq) {
+
+
+	src2 = bitReversal (src2);
+        src1 = bitReversal (src1);
+
+      src2 = src2 - src1;
+      prog_count = ((src2 > 0) ? prog_count + 0x3 : (-c));
+        src2 = bitReversal (src2);
     }
     else {//xor logic
-    }*/
+    }
   }
 }
+
+
+
+unsigned int bitReversal (unsigned int src) {
+  unsigned int reversedBit = (0xFFFFFFFF << 31) | (src << 31);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 30) & src) << 30);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 29) & src) << 29);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 28) & src) << 28);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 27) & src) << 27);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 26) & src) << 26);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 25) & src) << 25);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 24) & src) << 24);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 23) & src) << 23);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 22) & src) << 22);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 21) & src) << 21);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 20) & src) << 20);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 19) & src) << 19);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 18) & src) << 18);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 17) & src) << 17);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 16) & src) << 16);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 15) & src) << 15);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 14) & src) << 14);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 13) & src) << 13);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 12) & src) << 12);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 11) & src) << 11);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 10) & src) << 10);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 9) & src) << 9);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 8) & src) << 8);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 7) & src) << 7);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 6) & src) << 6);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 5) & src) << 5);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 4) & src) << 4);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 3) & src) << 3);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 2) & src) << 2);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 1) & src) << 1);
+  reversedBit = reversedBit | (((0xFFFFFFFF >> 0) & src) << 0);
+
+  return reversedBit;
+}
+
+
+
+
+
+
