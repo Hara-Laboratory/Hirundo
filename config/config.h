@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Fri 24 Apr 2015 09:33:37 AM JST
+* Last Modified on : Mon Aug  3 17:58:08 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,10 +12,10 @@
 
 #include <stdio.h>
 
-#define PRINT
+//#define PRINT
 
 
-#define PROFILE
+//#define PROFILE
 
 
 //#define DEBUG_SUB
