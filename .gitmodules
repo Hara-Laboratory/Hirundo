@@ -1,0 +1,9 @@
+[submodule "elf2mem"]
+	path = elf2mem
+	url = git@github.com:Hara-Laboratory/elf2mem.git
+[submodule "subleq-toolchain"]
+	path = subleq-toolchain
+	url = git@github.com:Hara-Laboratory/subleq-toolchain.git
+[submodule "subleq-mips"]
+	path = subleq-mips
+	url = git@github.com:Hara-Laboratory/subleq-mips.git
