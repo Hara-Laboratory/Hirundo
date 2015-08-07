@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu 06 Aug 2015 11:17:40 AM JST
+* Last Modified on : Fri 07 Aug 2015 09:30:53 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -43,7 +43,7 @@ int branch = 0;
 #endif
 
 unsigned int bitReversal (unsigned int);// {
-uint emulator (uint);
+uint emulator (uint, unsigned int *);
 void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
 uint get_value(uint);
 void write_value(int, uint);
@@ -63,8 +63,9 @@ void subleq_machine(ushort prog_count);
 
 
 int main(int argc, char **argv){
+  unsigned int nosi = 0;
   uint prog_count = 0x2000;
-  uint status = emulator(prog_count >> 2);
+  uint status = emulator(prog_count >> 2, &nosi);
 #ifdef PRINT
   int i;
   printf("========\nREG FILE\n========\n");
@@ -109,7 +110,7 @@ int main(int argc, char **argv){
 }
 
 
-uint emulator (uint prog_count){
+uint emulator (uint prog_count, unsigned int *nosi){
   uint emulator_status = NORMAL;
   uint prog_count_1 = prog_count;
   uint instruction;
@@ -721,6 +722,8 @@ void subleq_machine(ushort prog_count) {
 
 
 void extended_subleq_machine (unsigned int prog_count) {
+  //while (prog_count != 0){
+  //}
   while (prog_count != 999) {
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);
