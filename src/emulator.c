@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 07 Aug 2015 09:30:53 AM JST
+* Last Modified on : Mon 10 Aug 2015 02:45:06 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "../adpcm.h"
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
@@ -27,7 +28,7 @@
 //#include "../benchmarks/insertsort.h"
 //#include "../benchmarks/jfdctint.h"
 //#include "../benchmarks/mpeg2.h"
-#include "../benchmarks/vec_add.h"
+//#include "../benchmarks/vec_add.h"
 
 #ifdef PROFILE
 int addition = 0;
@@ -724,7 +725,8 @@ void subleq_machine(ushort prog_count) {
 void extended_subleq_machine (unsigned int prog_count) {
   //while (prog_count != 0){
   //}
-  while (prog_count != 999) {
+  while (prog_count != 0) {
+    printf("WORKING\n");
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);
     signed int c = get_value (prog_count + 0x2);

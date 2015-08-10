@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu 06 Aug 2015 11:11:27 AM JST
+* Last Modified on : Mon 10 Aug 2015 02:44:35 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-#define PRINT
+//#define PRINT
 
 
 //#define PROFILE
@@ -28,16 +28,16 @@
 
 
 
-//#define	USE_ADDER
-//#define USE_SUB
-//#define USE_MULT
-//#define USE_MFLO
-//#define USE_MFHI
-//#define USE_MTLO
-//#define USE_MTHI
+#define	USE_ADDER
+#define USE_SUB
+#define USE_MULT
+#define USE_MFLO
+#define USE_MFHI
+#define USE_MTLO
+#define USE_MTHI
 //#define USE_SHIFTER
-//#define USE_SYS
-//#define USE_SET_LESS_THAN
+#define USE_SYS
+#define USE_SET_LESS_THAN
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000
@@ -72,14 +72,31 @@ unsigned int TEMP7;
 #define SRC1_LOC	38//use in subleq machine 
 #define	SRC2_LOC	39//use in subleq machine
 
+
+//#define ANDD_ROUTINE	1219
+//#define	MULTD_ROUTINE	838
+//#define	MULTU_ROUTINE	658
+//#define	ORD_ROUTINE	538
+//#define	SLL_ROUTINE	505
+//#define	SLT_ROUTINE	454
+//#define	SLTU_ROUTINE	388
+//#define	SRA_ROUTINE	295
+//#define	SRL_ROUTINE	220
+//#define	XORD_ROUTINE	100
+
+
 #define ADD_ROUTINE	1063
-#define MUL_ROUTINE	610
+//#define MUL_ROUTINE	610
+#define MUL_ROUTINE	838
 #define	SUB_ROUTINE	268
 #define MFLO_ROUTINE	1039
 #define MFHI_ROUTINE	1051
-#define SLL_ROUTINE	577
-#define SRL_ROUTINE	289
-#define SRA_ROUTINE	364
+//#define SLL_ROUTINE	577
+#define SLL_ROUTINE	505
+//#define SRL_ROUTINE	289
+#define SRL_ROUTINE	220
+//#define SRA_ROUTINE	364
+#define SRA_ROUTINE	295
 #define SYS_ROUTINE	256
 #define SLT_ROUTINE	526
 #define	SLTU_ROUTINE	457
