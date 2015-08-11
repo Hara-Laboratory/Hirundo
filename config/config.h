@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon 10 Aug 2015 02:44:35 PM JST
+* Last Modified on : Tue Aug 11 12:01:57 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -23,7 +23,7 @@
 //#define DEBUG_MULT
 //#define DEBUG_MFLO
 //#define DEBUG_MFHI
-//#define DEBUG_SHIFTER
+#define DEBUG_SHIFTER
 //#define DEBUG_SET_LESS_THAN
 
 
