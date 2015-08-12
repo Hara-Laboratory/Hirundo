@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Tue Aug 11 12:03:18 2015
+* Last Modified on : Wed 12 Aug 2015 01:30:08 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -425,36 +425,52 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifdef DEBUG_SHIFTER
   if (sll_cond){
-    printf("sll: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (sll(src2,shift_inp) != res_subleq){
+      printf("sll: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    }
   }
   else if (sllv_cond){
-    printf("sllV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (sll(src2, shift_inp) != res_subleq) {
+      printf("sllV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    }
   }
   else if (srl_cond){
-    printf("srl: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (srl(src2, shift_inp) != res_subleq)
+      printf("srl: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (srlV_COND){
-    printf("srlV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (srl(src2, shift_inp) != res_subleq)
+      printf("srlV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sra_cond){
-    printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (sra(src2, shift_inp) != res_subleq)
+      printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (srav_cond){
-    printf("SRAV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    if (sra(src2, shift_inp) != res_subleq)
+      printf("SRAV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
 #endif
 #ifdef DEBUG_SET_LESS_THAN
   if (slt_cond){
-    printf("SLT: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,((src1 < slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
+    unsigned int slt_check = (src1 < slt_inp) ? 1 : 0;
+    if (slt_check != res_subleq)
+      printf("SLT: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,((src1 < slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sltu_cond){
-    printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,(((uint) src1 < (uint) slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
+    unsigned int sltu_check = ((unsigned int)src1 < (unsigned int)slt_inp) ? 1 : 0;
+    if (sltu_check != res_subleq)
+      printf("SLTU: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,(((uint) src1 < (uint) slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
   }
   else if (slti_cond){
-    printf("SLTI: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,((src1 < slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
+    unsigned int slti_check = (src1 < slt_inp) ? 1 : 0;
+    if (slti_check != res_subleq)
+      printf("SLTI: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,((src1 < slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sltiu_cond){
-    printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,(((uint) src1 < (uint) slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
+    unsigned int sltiu_check = ((unsigned int) src1 < (unsigned int) slt_inp) ? 1 : 0;
+    if (sltiu_check != res_subleq)
+      printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,(((uint) src1 < (uint) slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
   } 
 #endif
 
@@ -725,8 +741,8 @@ void subleq_machine(ushort prog_count) {
 void extended_subleq_machine (unsigned int prog_count) {
   //while (prog_count != 0){
   //}
-  while (prog_count != 0) {
-    printf("WORKING\n");
+  while (true) {
+    //printf("WORKING\n");
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);
     signed int c = get_value (prog_count + 0x2);
@@ -750,6 +766,9 @@ void extended_subleq_machine (unsigned int prog_count) {
       prog_count = ((src2 > 0) ? prog_count + 0x3 : (-c));
       src2 = bitReversal (src2);
       write_value (src2, b);
+    }
+    else {
+      break;
     }
 /*
     else {//xor logic
