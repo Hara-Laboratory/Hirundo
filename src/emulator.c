@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed 12 Aug 2015 01:30:08 PM JST
+* Last Modified on : Wed 12 Aug 2015 06:24:01 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,7 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../adpcm.h"
+//#include "../adpcm.h"
+#include "../adpcm_e.h"
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
