@@ -1,6 +1,11 @@
 # HIRUNDO
 ## A Synthesizable MIPS processor
-Described in C and can be Synthesized from HLS tool
+Described in C and can be Synthesized from HLS tool. The codes are tested on LegUp and Vivado HLS tools.
+
+## Tool Required
+- LegUp HLS (from University of Toronto, open source)
+- Vivado HLS (from Xilinx)
+
 
 ## Dependencies
 - libelf
