@@ -752,7 +752,7 @@ void extended_subleq_machine (unsigned int prog_count) {
     signed int src1 = get_value (a);
     signed int src2 = get_value (b);
 
-    bool subleq = (c > 0);
+    bool subleq = (c >= 0);
     bool extended_subleq = (c < 0);
     //bool xor_logic = ((prog_count & 0x3) == 2);
 
@@ -769,7 +769,8 @@ void extended_subleq_machine (unsigned int prog_count) {
       src2 = bitReversal (src2);
       write_value (src2, b);
     }
-    else {
+
+	if (c == 0) {
       break;
     }
 /*
