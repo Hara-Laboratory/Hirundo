@@ -62,6 +62,7 @@ uint and (uint, uint);
 uint xor (uint, uint);
 int64_t mult (int, int);
 void subleq_machine(ushort prog_count);
+void extended_subleq_machine (unsigned int prog_count);
 
 
 int main(int argc, char **argv){
