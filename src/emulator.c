@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Wed 12 Aug 2015 06:24:01 PM JST
+* Last Modified on : Thu Aug 20 14:39:52 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//#include "../adpcm.h"
-#include "../adpcm_e.h"
+#include "../adpcm.h"
+//#include "../adpcm_e.h"
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
@@ -227,20 +227,6 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (bltz_cond | bgez_cond | beq_cond | beqz_cond | bne_cond | blez_cond | bgtz_cond) branch++;
 #endif
 
-  /*and andI or orI xor xorI*/
-  bool logici_cond = andi_cond | ori_cond | xori_cond; 
-
-  uint logici_inp = (logici_cond) ? (ushort) *imm : src2;
-  uint res_and = and (src1, logici_inp);
-  uint res_or = or (src1, logici_inp);
-  uint res_xor = xor (src1, logici_inp);
-  /*Nor*/
-  uint res_nor = ~res_or;
-
-  uint res_logic = ((and_cond | andi_cond) ? res_and : 0x0) |
-		   ((or_cond | ori_cond) ? res_or : 0x0) |
-		   ((xor_cond | xori_cond) ? res_xor : 0x0) |
-		   ((nor_cond) ? res_nor : 0x0);
 
   bool subleq_cond = false 
 #ifndef USE_ADDER
@@ -267,8 +253,29 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifndef USE_SET_LESS_THAN
 		     | slt_cond | slti_cond | sltu_cond | sltiu_cond
 #endif
+#ifndef	USE_LOGIC_UNIT
+		     | and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond
+#endif
 		     ; 
-  
+
+  /*and andI or orI xor xorI*/
+  bool logici_cond = andi_cond | ori_cond | xori_cond; 
+
+  uint logici_inp = (logici_cond) ? (ushort) *imm : src2;
+#ifdef	USE_LOGIC_UNIT  
+  uint res_and = and (src1, logici_inp);
+  uint res_or = or (src1, logici_inp);
+  uint res_xor = xor (src1, logici_inp);
+  /*Nor*/
+  uint res_nor = ~res_or;
+
+  uint res_logic = ((and_cond | andi_cond) ? res_and : 0x0) |
+		   ((or_cond | ori_cond) ? res_or : 0x0) |
+		   ((xor_cond | xori_cond) ? res_xor : 0x0) |
+		   ((nor_cond) ? res_nor : 0x0);
+#endif
+
+
   /*MFHI*//**opcode == 0x00 & *funct == 0x10*/
 #ifdef USE_MFHI
   uint res_mfhi = get_value (HI);
@@ -315,7 +322,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 
-#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN)
+#if !defined(USE_ADDER) || !defined(USE_MULT) || !defined(USE_SUB) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SYS) || !defined(USE_SET_LESS_THAN) || !defined(USE_LOGIC_UNIT)
   uint res_subleq = 0;
   uint routine_addr = 0x0
 #ifndef	USE_ADDER
@@ -345,6 +352,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 			     | ((slt_cond | slti_cond) ? SLT_ROUTINE : 0x0)
 			     | ((sltu_cond | sltiu_cond) ? SLTU_ROUTINE : 0x0)
 #endif
+#ifndef USE_LOGIC_UNIT
+			     | ((and_cond | andi_cond) ? AND_ROUTINE : 0x0)
+			     | ((or_cond | ori_cond) ? OR_ROUTINE : 0x0)
+			     | ((xor_cond | xori_cond) ? XOR_ROUTINE : 0x0)
+#endif
 			     ;
 
   int subleq_src1 = 0x0
@@ -365,6 +377,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifndef	USE_SET_LESS_THAN
 		   | ((slt_cond | slti_cond | sltu_cond | sltiu_cond) ? src1 : 0x0)
+#endif
+#ifndef	USE_LOGIC_UNIT
+		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond) ? src1 : 0x0)
 #endif
 		   ; 
 
@@ -388,6 +403,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifndef	USE_SET_LESS_THAN
 		   | ((slt_cond | slti_cond | sltu_cond | sltiu_cond) ? slt_inp : 0x0)
 		   /*| ((sltu_cond | sltiu_cond) ? slt_inp : 0x0)*/
+#endif
+#ifndef	USE_LOGIC_UNIT
+		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond) ? logici_inp : 0x0)
 #endif
 		   ; 
 
@@ -474,6 +492,23 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     if (sltiu_check != res_subleq)
       printf("SLTIU: N:(%d,%d,%d), S:(%d,%d,%d)\n",src1,slt_inp,(((uint) src1 < (uint) slt_inp)?1:0),subleq_src1,subleq_src2,res_subleq);
   } 
+#endif
+#ifdef	DEBUG_LOGIC_UNIT
+  if (and_cond | andi_cond) {
+    if (and (src1, logici_inp) != res_subleq) {
+      printf ("AND: N:(%x,%x,%x), S:(%x,%x,%x)\n",src1, logici_inp, and(src1,logici_inp), subleq_src1, subleq_src2, res_subleq);
+    }
+  }
+  else if (or_cond | ori_cond) {
+    if (or (src1, logici_inp) != res_subleq) {
+      printf ("OR: N:(%x,%x,%x), S:(%x,%x,%x)\n",src1, logici_inp, or(src1,logici_inp), subleq_src1, subleq_src2, res_subleq);
+    }
+  }
+  else if (xor_cond | xori_cond) {
+    if (xor (src1, logici_inp) != res_subleq) {
+      printf ("XOR: N:(%x,%x,%x), S:(%x,%x,%x)\n",src1, logici_inp, xor(src1,logici_inp), subleq_src1, subleq_src2, res_subleq);
+    }
+  }
 #endif
 
 
@@ -568,7 +603,10 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 		    );
 
-  result = (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) ? res_logic : 0x0 |
+  result = 0x0 |
+#ifdef	USE_LOGIC_UNIT
+	   (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) ? res_logic : 0x0 |
+#endif
 #if 0
   result = ((and_cond | andi_cond)? res_and : 0x0) | /*and*/
 	   ((or_cond | ori_cond)? res_or : 0x0) | /*or*/
@@ -584,7 +622,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 	   ((lb_cond)? (sint) res_lbu : 0x0) | /*LB*/
 	   ((lh_cond)? (sint) res_lhu : 0x0) | /*LH*/
 	   ((lhu_cond)? res_lhu : 0x0) | /*LHU*/
-#if !defined(USE_ADDER) || !defined(USE_SUB) || !defined(USE_MULT) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SET_LESS_THAN) || !defined (USE_SYS)
+#if !defined(USE_ADDER) || !defined(USE_SUB) || !defined(USE_MULT) || !defined(USE_MFLO) || !defined(USE_MFHI) || !defined(USE_SHIFTER) || !defined(USE_SET_LESS_THAN) || !defined (USE_SYS) || !defined(USE_LOGIC_UNIT)
 	   ((subleq_cond)? res_subleq : 0x0) |/*ADDU*/
 #endif
 #ifdef USE_ADDER

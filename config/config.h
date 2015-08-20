@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Wed 12 Aug 2015 06:27:48 PM JST
+* Last Modified on : Thu Aug 20 14:34:11 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -23,21 +23,23 @@
 //#define DEBUG_MULT
 //#define DEBUG_MFLO
 //#define DEBUG_MFHI
-#define DEBUG_SHIFTER
+//#define DEBUG_SHIFTER
 //#define DEBUG_SET_LESS_THAN
+#define	DEBUG_LOGIC_UNIT
 
 
 
 #define	USE_ADDER
 #define USE_SUB
-#define USE_MULT
+//#define USE_MULT
 #define USE_MFLO
 #define USE_MFHI
 #define USE_MTLO
 #define USE_MTHI
 //#define USE_SHIFTER
 #define USE_SYS
-#define USE_SET_LESS_THAN
+//#define USE_SET_LESS_THAN
+//#define USE_LOGIC_UNIT
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000
@@ -87,30 +89,37 @@ unsigned int TEMP7;
 
 #define ADD_ROUTINE	1063
 //#define MUL_ROUTINE	610
-#define MUL_ROUTINE	658
+#define MUL_ROUTINE	838//658
 #define	SUB_ROUTINE	268
 #define MFLO_ROUTINE	1039
 #define MFHI_ROUTINE	1051
 //#define SLL_ROUTINE	577
-//#define SLL_ROUTINE	505//subleq
-#define SLL_ROUTINE	619//subleqr
+#define SLL_ROUTINE	505//subleq
+//#define SLL_ROUTINE	619//subleqr
 //#define SRL_ROUTINE	289
-//#define SRL_ROUTINE	220//subleq
-#define SRL_ROUTINE	220//subleqr
+#define SRL_ROUTINE	220//subleq
+//#define SRL_ROUTINE	220//subleqr
 //#define SRA_ROUTINE	364
-//#define SRA_ROUTINE	295//subleq
-#define SRA_ROUTINE	340//subleqr
+#define SRA_ROUTINE	295//subleq
+//#define SRA_ROUTINE	340//subleqr
 #define SYS_ROUTINE	256
 //#define SLT_ROUTINE	526
 //#define	SLTU_ROUTINE	457
 #define SLT_ROUTINE	454
 #define	SLTU_ROUTINE	388
 
+#define	AND_ROUTINE	1219
+#define	OR_ROUTINE	538
+#define	XOR_ROUTINE	100
+
+
+
+
 #define SLLV_ROUTINE	0x0
 #define SRLV_ROUTINE	0x0
 #define SRAV_ROUTINE	0x0
-#define XOR_ROUTINE	0x0
-#define NOR_ROUTINE	0x0
+//#define XOR_ROUTINE	0x0
+//#define NOR_ROUTINE	0x0
 #define LUI_ROUTINE	0x0
 
 #define START_PC	700
