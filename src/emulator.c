@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Thu Aug 20 14:39:52 2015
+* Last Modified on : Mon Aug 24 10:26:44 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../adpcm.h"
-//#include "../adpcm_e.h"
+//#include "../adpcm.h"
+#include "../adpcm_e.h"
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
@@ -44,8 +44,11 @@ int store = 0;
 int branch = 0;
 #endif
 
+
+unsigned int nosi = 0;
+
 unsigned int bitReversal (unsigned int);// {
-uint emulator (uint, unsigned int *);
+uint emulator (uint);
 void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
 uint get_value(uint);
 void write_value(int, uint);
@@ -66,9 +69,8 @@ void extended_subleq_machine (unsigned int prog_count);
 
 
 int main(int argc, char **argv){
-  unsigned int nosi = 0;
   uint prog_count = 0x2000;
-  uint status = emulator(prog_count >> 2, &nosi);
+  uint status = emulator(prog_count >> 2);
 #ifdef PRINT
   int i;
   printf("========\nREG FILE\n========\n");
@@ -78,6 +80,7 @@ int main(int argc, char **argv){
       printf("\n");
   }
 #endif
+  printf("Total Number of Subleq Instruction: %d\n", nosi);
 
 #ifdef PROFILE
   printf("\n=====================\nInstruction Profiling\n=====================\n");
@@ -113,7 +116,7 @@ int main(int argc, char **argv){
 }
 
 
-uint emulator (uint prog_count, unsigned int *nosi){
+uint emulator (uint prog_count){
   uint emulator_status = NORMAL;
   uint prog_count_1 = prog_count;
   uint instruction;
@@ -212,6 +215,35 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   bool sb_cond = (*opcode == 0x28);
   bool sh_cond = (*opcode == 0x29);
   bool sw_cond = (*opcode == 0x2B);
+
+
+#ifdef SUBLEQ_COUNT
+  if (jr_cond) nosi += 5;
+  if (mfhi_cond) nosi += 4;
+  if (mflo_cond) nosi += 4;
+  if (addu_cond) nosi += 5;
+  if (subu_cond) nosi += 7;
+  if (nor_cond);
+  if (j_cond) nosi += 1;
+  if (jal_cond) nosi += 4;
+  if (bltz_cond) nosi += 2;
+  if (bgez_cond) nosi += 2;
+  if (beq_cond) {if ((src2 - src1) > 0) nosi += 4; else nosi += 7;}
+  if (beqz_cond) {if (src1 > 0) nosi += 2; else if (src1 < 0) nosi += 3; else if (src1 == 0) nosi += 4;}
+  if (bne_cond) {if ((src2 - src1) > 0) nosi += 4; else nosi += 7;}
+  if (blez_cond) nosi += 1;
+  if (bgtz_cond) nosi += 2;
+  if (addiu_cond) nosi += 5;
+  if (lui_cond);
+  if (lb_cond);
+  if (lh_cond);
+  if (lw_cond);
+  if (lbu_cond);
+  if (lhu_cond);
+  if (sb_cond);
+  if (sh_cond);
+  if (sw_cond);
+#endif
 
 
 #ifdef PROFILE
@@ -356,6 +388,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 			     | ((and_cond | andi_cond) ? AND_ROUTINE : 0x0)
 			     | ((or_cond | ori_cond) ? OR_ROUTINE : 0x0)
 			     | ((xor_cond | xori_cond) ? XOR_ROUTINE : 0x0)
+			     //| ((nor_cond) ? NOR_ROUTINE : 0x0)
 #endif
 			     ;
 
@@ -782,6 +815,7 @@ void extended_subleq_machine (unsigned int prog_count) {
   //while (prog_count != 0){
   //}
   while (true) {
+    nosi ++;
     //printf("WORKING\n");
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);

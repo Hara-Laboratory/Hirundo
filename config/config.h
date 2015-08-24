@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Thu Aug 20 14:34:11 2015
+* Last Modified on : Mon Aug 24 10:21:48 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,8 +12,9 @@
 
 #include <stdio.h>
 
-//#define PRINT
+#define PRINT
 
+#define	SUBLEQ_COUNT
 
 //#define PROFILE
 
@@ -25,7 +26,7 @@
 //#define DEBUG_MFHI
 //#define DEBUG_SHIFTER
 //#define DEBUG_SET_LESS_THAN
-#define	DEBUG_LOGIC_UNIT
+//#define	DEBUG_LOGIC_UNIT
 
 
 
@@ -88,29 +89,48 @@ unsigned int TEMP7;
 
 
 #define ADD_ROUTINE	1063
-//#define MUL_ROUTINE	610
-#define MUL_ROUTINE	838//658
 #define	SUB_ROUTINE	268
 #define MFLO_ROUTINE	1039
 #define MFHI_ROUTINE	1051
+#define SYS_ROUTINE	256
+
+
+
+//#define	AND_ROUTINE	1219
+//#define MUL_ROUTINE	838
+//#define	OR_ROUTINE	538
+//#define SLL_ROUTINE	505//subleq
+//#define SLT_ROUTINE	454//subleq
+//#define	SLTU_ROUTINE	388//subleq
+//#define SRA_ROUTINE	295//subleq
+//#define SRL_ROUTINE	220//subleq
+//#define	XOR_ROUTINE	100
+//#define	NOR_ROUTINE	200
+
+
+#define	AND_ROUTINE	1414
+#define MUL_ROUTINE	1036
+#define	OR_ROUTINE	739
+#define SLL_ROUTINE	619//subleq
+#define SLT_ROUTINE	568//subleq
+#define	SLTU_ROUTINE	502//subleq
+#define SRA_ROUTINE	340//subleq
+#define SRL_ROUTINE	220//subleq
+#define	XOR_ROUTINE	100
+#define	NOR_ROUTINE	200
+//#define MUL_ROUTINE	838//658
 //#define SLL_ROUTINE	577
-#define SLL_ROUTINE	505//subleq
 //#define SLL_ROUTINE	619//subleqr
 //#define SRL_ROUTINE	289
-#define SRL_ROUTINE	220//subleq
 //#define SRL_ROUTINE	220//subleqr
 //#define SRA_ROUTINE	364
-#define SRA_ROUTINE	295//subleq
 //#define SRA_ROUTINE	340//subleqr
-#define SYS_ROUTINE	256
-//#define SLT_ROUTINE	526
-//#define	SLTU_ROUTINE	457
-#define SLT_ROUTINE	454
-#define	SLTU_ROUTINE	388
-
-#define	AND_ROUTINE	1219
-#define	OR_ROUTINE	538
-#define	XOR_ROUTINE	100
+//#define SLT_ROUTINE	568//subleqr
+//#define	SLTU_ROUTINE	502//subleqr
+//#define	AND_ROUTINE	1414
+//#define	OR_ROUTINE	739
+//#define	XOR_ROUTINE	100
+//#define	NOR_ROUTINE	200
 
 
 
