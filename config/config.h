@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon Aug 24 10:21:48 2015
+* Last Modified on : Fri 04 Sep 2015 09:08:09 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -95,19 +95,22 @@ unsigned int TEMP7;
 #define SYS_ROUTINE	256
 
 
+#if 0
+#define	AND_ROUTINE	1219
+#define MUL_ROUTINE	838
+#define	OR_ROUTINE	538
+#define SLL_ROUTINE	505//subleq
+#define SLT_ROUTINE	454//subleq
+#define	SLTU_ROUTINE	388//subleq
+#define SRA_ROUTINE	295//subleq
+#define SRL_ROUTINE	220//subleq
+#define	XOR_ROUTINE	100
+#define	NOR_ROUTINE	200
+#endif
 
-//#define	AND_ROUTINE	1219
-//#define MUL_ROUTINE	838
-//#define	OR_ROUTINE	538
-//#define SLL_ROUTINE	505//subleq
-//#define SLT_ROUTINE	454//subleq
-//#define	SLTU_ROUTINE	388//subleq
-//#define SRA_ROUTINE	295//subleq
-//#define SRL_ROUTINE	220//subleq
-//#define	XOR_ROUTINE	100
-//#define	NOR_ROUTINE	200
 
 
+#if 1
 #define	AND_ROUTINE	1414
 #define MUL_ROUTINE	1036
 #define	OR_ROUTINE	739
@@ -118,6 +121,7 @@ unsigned int TEMP7;
 #define SRL_ROUTINE	220//subleq
 #define	XOR_ROUTINE	100
 #define	NOR_ROUTINE	200
+#endif
 //#define MUL_ROUTINE	838//658
 //#define SLL_ROUTINE	577
 //#define SLL_ROUTINE	619//subleqr

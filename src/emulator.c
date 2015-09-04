@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon Aug 24 10:26:44 2015
+* Last Modified on : Fri 04 Sep 2015 09:41:39 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -15,9 +15,39 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 //#include "../adpcm.h"
-#include "../adpcm_e.h"
+//#include "../bf.h"
+//#include "../bs.h"
+//#include "../bubble.h"
+//#include "../crc.h"
+//#include "../fibcall.h"
+//#include "../gsm.h"
+//#include "../intmm.h"
+//#include "../isort.h"
+//#include "../jfdctint.h"
+//#include "../mpeg.h"
+//#include "../vec_add.h"
+
+
+//#include "../adpcm_e.h"
+//#include "../bf_e.h"
+//#include "../bs_e.h"
+//#include "../bubble_e.h"
+//#include "../crc_e.h"
+//#include "../fibcall_e.h"
+//#include "../gsm_e.h"
+//#include "../intmm_e.h"
+//#include "../isort_e.h"
+//#include "../jfdctint_e.h"
+#include "../mpeg_e.h"
+//#include "../vec_add_e.h"
+
+
+
+
+
 //#include "../benchmarks/adpcm.h"
 //#include "../benchmarks/bf.h"
 //#include "../benchmarks/bs.h"
@@ -45,7 +75,8 @@ int branch = 0;
 #endif
 
 
-unsigned int nosi = 0;
+int64_t nosi = 0;
+//unsigned int nosi = 0;
 
 unsigned int bitReversal (unsigned int);// {
 uint emulator (uint);
@@ -80,7 +111,7 @@ int main(int argc, char **argv){
       printf("\n");
   }
 #endif
-  printf("Total Number of Subleq Instruction: %d\n", nosi);
+  printf("Total Number of Subleq Instruction: %lld\n", (long long)nosi);
 
 #ifdef PROFILE
   printf("\n=====================\nInstruction Profiling\n=====================\n");
@@ -223,7 +254,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (mflo_cond) nosi += 4;
   if (addu_cond) nosi += 5;
   if (subu_cond) nosi += 7;
-  if (nor_cond);
+  if (nor_cond); 
   if (j_cond) nosi += 1;
   if (jal_cond) nosi += 4;
   if (bltz_cond) nosi += 2;
@@ -234,15 +265,84 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (blez_cond) nosi += 1;
   if (bgtz_cond) nosi += 2;
   if (addiu_cond) nosi += 5;
-  if (lui_cond);
-  if (lb_cond);
-  if (lh_cond);
-  if (lw_cond);
-  if (lbu_cond);
-  if (lhu_cond);
-  if (sb_cond);
-  if (sh_cond);
-  if (sw_cond);
+  if (lui_cond) {write_value (*imm, SRC1_LOC); write_value (16, SRC2_LOC); extended_subleq_machine(SLL_ROUTINE);}
+  if (lb_cond) {
+    unsigned int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (lh_cond) {
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (lw_cond) {/*DONE*/
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    nosi += 4;
+  }
+  if (lbu_cond) {
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (lhu_cond) {
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (sb_cond) {
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (sh_cond) {
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    //unsigned int final_addr_temp = get_value (DEST_LOC);
+    //unsigned int final_value_temp = get_value (final_addr_temp);
+    nosi += 4;
+  }
+  if (sw_cond) {/*DONE*/
+    int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
+    nosi += 5;
+    write_value (mem_addr_temp_temp, SRC1_LOC);
+    write_value (2, SRC1_LOC);
+    extended_subleq_machine (SRL_ROUTINE);
+    nosi += 4;
+  }
 #endif
 
 
@@ -286,7 +386,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     | slt_cond | slti_cond | sltu_cond | sltiu_cond
 #endif
 #ifndef	USE_LOGIC_UNIT
-		     | and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond
+		     | and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond
 #endif
 		     ; 
 
@@ -388,7 +488,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 			     | ((and_cond | andi_cond) ? AND_ROUTINE : 0x0)
 			     | ((or_cond | ori_cond) ? OR_ROUTINE : 0x0)
 			     | ((xor_cond | xori_cond) ? XOR_ROUTINE : 0x0)
-			     //| ((nor_cond) ? NOR_ROUTINE : 0x0)
+			     | ((nor_cond) ? NOR_ROUTINE : 0x0)
 #endif
 			     ;
 
@@ -412,7 +512,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((slt_cond | slti_cond | sltu_cond | sltiu_cond) ? src1 : 0x0)
 #endif
 #ifndef	USE_LOGIC_UNIT
-		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond) ? src1 : 0x0)
+		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) ? src1 : 0x0)
 #endif
 		   ; 
 
@@ -438,7 +538,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   /*| ((sltu_cond | sltiu_cond) ? slt_inp : 0x0)*/
 #endif
 #ifndef	USE_LOGIC_UNIT
-		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond) ? logici_inp : 0x0)
+		   | ((and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) ? logici_inp : 0x0)
 #endif
 		   ; 
 
@@ -541,6 +641,9 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     if (xor (src1, logici_inp) != res_subleq) {
       printf ("XOR: N:(%x,%x,%x), S:(%x,%x,%x)\n",src1, logici_inp, xor(src1,logici_inp), subleq_src1, subleq_src2, res_subleq);
     }
+  }
+  else if (nor_cond) {
+    printf ("NOR operation\n");
   }
 #endif
 
