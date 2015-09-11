@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Fri 04 Sep 2015 09:08:09 AM JST
+* Last Modified on : Tue Sep  8 09:17:53 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -40,7 +40,7 @@
 //#define USE_SHIFTER
 #define USE_SYS
 //#define USE_SET_LESS_THAN
-//#define USE_LOGIC_UNIT
+#define USE_LOGIC_UNIT
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000

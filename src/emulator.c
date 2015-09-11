@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 04 Sep 2015 09:41:39 AM JST
+* Last Modified on : Tue Sep  8 09:18:37 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -407,6 +407,11 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   ((nor_cond) ? res_nor : 0x0);
 #endif
 
+#ifdef SUBLEQ_COUNT
+  if (and_cond | andi_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (AND_ROUTINE);}
+  if (or_cond | ori_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (OR_ROUTINE);}
+  if (xor_cond | xori_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (XOR_ROUTINE);}
+#endif
 
   /*MFHI*//**opcode == 0x00 & *funct == 0x10*/
 #ifdef USE_MFHI
