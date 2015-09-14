@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon 13 Jul 2015 09:30:58 AM JST
+* Last Modified on : Mon Sep 14 19:19:02 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -161,7 +161,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   bool srl_cond = (r_type & (*funct == 0x02));
   bool sra_cond = (r_type & (*funct == 0x03));
   bool sllv_cond = (r_type & (*funct == 0x04));
-  bool srlV_COND = (r_type & (*funct == 0x06));
+  bool srlv_COND = (r_type & (*funct == 0x06));
   bool srav_cond = (r_type & (*funct == 0x07));
   bool jr_cond = (r_type & (*funct == 0x08));
   bool sys_cond = (r_type & (*funct == 0x0C));
@@ -209,7 +209,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (addu_cond | addiu_cond) addition++;
   if (subu_cond) subtraction++;
   if (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) logic++;
-  if (sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) shift++;
+  if (sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) shift++;
   if (mult_cond | mfhi_cond | mflo_cond) multiplication++;
   if (slt_cond | sltu_cond | slti_cond | sltiu_cond) slt_u++;
   if (jr_cond | j_cond | sys_cond | jal_cond) jump++;
@@ -250,7 +250,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     | mflo_cond
 #endif
 #ifndef USE_SHIFTER
-		     | sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond
+		     | sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond
 #endif
 #ifndef USE_SYS
 		     | sys_cond
@@ -282,8 +282,8 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_subu = sub ((uint) src1, (uint) src2);
 #endif
 
-  /*sra*//*sraV*//*sll*//*sllV*//*srl*//*srlV*/
-  int shift_inp = (srav_cond | sllv_cond | srlV_COND) ? src1 : *sa;
+  /*sra*//*sraV*//*sll*//*sllv*//*srl*//*srlv*/
+  int shift_inp = (srav_cond | sllv_cond | srlv_COND) ? src1 : *sa;
 #ifdef USE_SHIFTER
   int res_srav = sra (src2, shift_inp);
   int res_sllv = sll (src2, shift_inp);
@@ -326,7 +326,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifndef USE_SHIFTER
 			     | ((sllv_cond | sll_cond) ? SLL_ROUTINE : 0x0)
-			     | ((srlV_COND | srl_cond) ? SRL_ROUTINE : 0x0)
+			     | ((srlv_COND | srl_cond) ? SRL_ROUTINE : 0x0)
 			     | ((srav_cond | sra_cond) ? SRA_ROUTINE : 0x0)
 #endif
 #ifndef	USE_SYS
@@ -349,7 +349,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((subu_cond) ? src1 : 0x0) 
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? src2 : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) ? src2 : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src1 : 0x0)
@@ -371,7 +371,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((subu_cond) ? src2 : 0x0)
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? shift_inp : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) ? shift_inp : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src2 : 0x0)
@@ -420,13 +420,13 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     printf("sll: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sllv_cond){
-    printf("sllV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+    printf("sllv: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sll(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (srl_cond){
     printf("srl: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
-  else if (srlV_COND){
-    printf("srlV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+  else if (srlv_COND){
+    printf("srlv: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sra_cond){
     printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
@@ -581,7 +581,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifdef USE_SHIFTER
            ((sll_cond | sllv_cond)? res_sllv : 0x0) |/*sll*/
 	   ((sra_cond | srav_cond)? res_srav : 0x0) | /*sra*//*sraV*/
-	   ((srl_cond | srlV_COND)? res_srlv : 0x0) | /*srl*/
+	   ((srl_cond | srlv_COND)? res_srlv : 0x0) | /*srl*/
 #endif
 	   ((jal_cond)? link_addr : 0x0) |/*JAL*/
 	   ((lui_cond)? res_lui : 0x0) |/*LUI*/
@@ -597,7 +597,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     | mult_cond
 #endif
 		     );
-  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlV_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
+  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlv_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
   bool wb_rt = (slti_cond | sltiu_cond | lw_cond | lbu_cond | lb_cond | lh_cond | lhu_cond | ori_cond | andi_cond | xori_cond | addiu_cond | lui_cond); 
   bool wb_mem_addr = (sw_cond | sb_cond | sh_cond);
 
