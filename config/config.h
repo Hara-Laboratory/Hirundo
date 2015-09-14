@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Mon Sep 14 18:35:10 2015
+* Last Modified on : Fri 10 Jul 2015 04:22:06 PM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -102,7 +102,7 @@ typedef	signed char	schar;
 typedef	signed short	sshort;
 typedef	signed long	slong;
 
-unsigned int regFile[32];
+int regFile[32];
 
 unsigned int ADD[15] = {
     SRC1_LOC, Z, ADD_ROUTINE+3,

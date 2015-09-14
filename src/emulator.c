@@ -1,10 +1,10 @@
-/*----------------------------------------
+/* ----------------------------------------
 
 * File Name : emulator.c
 
 * Created on : 05-01-2015
 
-* Last Modified on : Mon Sep 14 18:47:19 2015
+* Last Modified on : Mon 13 Jul 2015 09:30:58 AM JST
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -43,7 +43,7 @@ int branch = 0;
 #endif
 
 uint emulator (uint);
-void exec (uint, uchar, uchar, uchar, uchar, uchar, ushort, uchar, uint, uint);
+void exec (uint, uchar*, uchar*, uchar*, uchar*, uchar*, ushort*, uchar*, uint*, uint*);
 uint get_value(uint);
 void write_value(int, uint);
 //void add ();
@@ -101,19 +101,18 @@ uint emulator (uint prog_count){
   uint prog_count_1 = prog_count;
   uint instruction;
 
-  uchar opcode = 0;
-  uchar funct = 0;
-  uchar rs = 0;
-  uchar rt = 0;
-  uchar rd = 0;
-  ushort imm = 0;
-  uchar sa = 0;
+  uchar opcode;
+  uchar funct;
+  uchar rs;
+  uchar rt;
+  uchar rd;
+  ushort imm;
+  uchar sa;
 
 #ifdef PRINT
   uint i = 0;
 #endif
 
-  //while (true) {
   while (emulator_status == NORMAL){
     /*fetch instructions*/
 #ifdef PRINT
@@ -122,7 +121,7 @@ uint emulator (uint prog_count){
     instruction = get_value (prog_count);
     prog_count_1 = prog_count_1 + 1;
     prog_count = prog_count_1;
-    exec (instruction, opcode, funct, rs, rt, rd, imm, sa, prog_count_1, emulator_status);
+    exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &emulator_status);
 #ifdef PRINT
     i++;
 #endif
@@ -131,15 +130,15 @@ uint emulator (uint prog_count){
   return prog_count_1;//emulator_status;
 }
 
-void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, uchar rd, ushort imm, uchar sa, uint prog_count, uint emulator_status){
+void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, uchar *rd, ushort *imm, uchar *sa, uint *prog_count, uint *emulator_status){
   /*decode instructions*/
-  opcode = instruction >> 26;
-  rs = (instruction >> 21) & 0X0000001F;
-  rt = (instruction >> 16) & 0X0000001F;
-  rd = (instruction >> 11) & 0X0000001F;
-  sa = (instruction >> 6) & 0X0000001F;
-  funct = instruction & 0X0000003F;
-  imm = instruction & 0xFFFF;
+  *opcode = instruction >> 26;
+  *rs = (instruction >> 21) & 0X0000001F;
+  *rt = (instruction >> 16) & 0X0000001F;
+  *rd = (instruction >> 11) & 0X0000001F;
+  *sa = (instruction >> 6) & 0X0000001F;
+  *funct = instruction & 0X0000003F;
+  *imm = instruction & 0xFFFF;
 
   /*FIXME: will remove later*/
   int i;
@@ -148,69 +147,69 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
   }
   /*FIXME: will remove later*/
 
-  //int src1 = get_value (rs);
-  //int src2 = get_value (rt);
-  int src1 = get_value_reg (rs);
-  int src2 = get_value_reg (rt);
+  //int src1 = get_value (*rs);
+  //int src2 = get_value (*rt);
+  int src1 = get_value_reg (*rs);
+  int src2 = get_value_reg (*rt);
   int result = 0;//add (src1, src2); /*addu*/
-  uint ret_addr = prog_count;// = prog_count;
+  uint ret_addr = *prog_count;// = *prog_count;
   uint wb_loc = TEMP_REG;
 
-  bool r_type = (opcode == 0x00);
+  bool r_type = (*opcode == 0x00);
   bool nop_cond = (instruction == 0x0);
-  bool sll_cond = (r_type & !nop_cond & (funct == 0x00));
-  bool srl_cond = (r_type & (funct == 0x02));
-  bool sra_cond = (r_type & (funct == 0x03));
-  bool sllv_cond = (r_type & (funct == 0x04));
-  bool srlv_COND = (r_type & (funct == 0x06));
-  bool srav_cond = (r_type & (funct == 0x07));
-  bool jr_cond = (r_type & (funct == 0x08));
-  bool sys_cond = (r_type & (funct == 0x0C));
-  bool mfhi_cond = (r_type & (funct == 0x10));
-  bool mflo_cond = (r_type & (funct == 0x12));
-  bool mult_cond = (r_type & (funct == 0x18));
+  bool sll_cond = (r_type & !nop_cond & (*funct == 0x00));
+  bool srl_cond = (r_type & (*funct == 0x02));
+  bool sra_cond = (r_type & (*funct == 0x03));
+  bool sllv_cond = (r_type & (*funct == 0x04));
+  bool srlV_COND = (r_type & (*funct == 0x06));
+  bool srav_cond = (r_type & (*funct == 0x07));
+  bool jr_cond = (r_type & (*funct == 0x08));
+  bool sys_cond = (r_type & (*funct == 0x0C));
+  bool mfhi_cond = (r_type & (*funct == 0x10));
+  bool mflo_cond = (r_type & (*funct == 0x12));
+  bool mult_cond = (r_type & (*funct == 0x18));
   //bool div_cond =
-  bool addu_cond = (r_type & (funct == 0x21));
-  bool subu_cond = (r_type & (funct == 0x23));
-  bool and_cond = (r_type & (funct == 0x24));
-  bool or_cond = (r_type & (funct == 0x25));
-  bool xor_cond = (r_type & (funct == 0x26));
-  bool nor_cond = (r_type & (funct == 0x27));
-  bool slt_cond = (r_type & (funct == 0x2A));
-  bool sltu_cond = (r_type & (funct == 0x2B));
+  bool addu_cond = (r_type & (*funct == 0x21));
+  bool subu_cond = (r_type & (*funct == 0x23));
+  bool and_cond = (r_type & (*funct == 0x24));
+  bool or_cond = (r_type & (*funct == 0x25));
+  bool xor_cond = (r_type & (*funct == 0x26));
+  bool nor_cond = (r_type & (*funct == 0x27));
+  bool slt_cond = (r_type & (*funct == 0x2A));
+  bool sltu_cond = (r_type & (*funct == 0x2B));
   //
-  bool j_cond = (opcode == 0x02);
-  bool jal_cond = (opcode == 0x03);
+  bool j_cond = (*opcode == 0x02);
+  bool jal_cond = (*opcode == 0x03);
   //
-  bool bltz_cond = ((opcode == 0x01) & (rt == 0x0));
-  bool bgez_cond = ((opcode == 0x01) & (rt == 0x1));
-  bool beq_cond = ((opcode == 0x04) & (rt != 0x0));
-  bool beqz_cond = ((opcode == 0x04) & (rt == 0x0));
-  bool bne_cond = (opcode == 0x05);
-  bool blez_cond = (opcode == 0x06);
-  bool bgtz_cond = (opcode == 0x07);
-  bool addiu_cond = (opcode == 0x09);
-  bool slti_cond = (opcode == 0x0A);
-  bool sltiu_cond = (opcode == 0x0B);
-  bool andi_cond = (opcode == 0x0C);
-  bool ori_cond = (opcode == 0x0D);
-  bool xori_cond = (opcode == 0x0E);
-  bool lui_cond = (opcode == 0x0F);
-  bool lb_cond = (opcode == 0x20);
-  bool lh_cond = (opcode == 0x21);
-  bool lw_cond = (opcode == 0x23);
-  bool lbu_cond = (opcode == 0x24);
-  bool lhu_cond = (opcode == 0x25);
-  bool sb_cond = (opcode == 0x28);
-  bool sh_cond = (opcode == 0x29);
-  bool sw_cond = (opcode == 0x2B);
+  bool bltz_cond = ((*opcode == 0x01) & (*rt == 0x0));
+  bool bgez_cond = ((*opcode == 0x01) & (*rt == 0x1));
+  bool beq_cond = ((*opcode == 0x04) & (*rt != 0x0));
+  bool beqz_cond = ((*opcode == 0x04) & (*rt == 0x0));
+  bool bne_cond = (*opcode == 0x05);
+  bool blez_cond = (*opcode == 0x06);
+  bool bgtz_cond = (*opcode == 0x07);
+  bool addiu_cond = (*opcode == 0x09);
+  bool slti_cond = (*opcode == 0x0A);
+  bool sltiu_cond = (*opcode == 0x0B);
+  bool andi_cond = (*opcode == 0x0C);
+  bool ori_cond = (*opcode == 0x0D);
+  bool xori_cond = (*opcode == 0x0E);
+  bool lui_cond = (*opcode == 0x0F);
+  bool lb_cond = (*opcode == 0x20);
+  bool lh_cond = (*opcode == 0x21);
+  bool lw_cond = (*opcode == 0x23);
+  bool lbu_cond = (*opcode == 0x24);
+  bool lhu_cond = (*opcode == 0x25);
+  bool sb_cond = (*opcode == 0x28);
+  bool sh_cond = (*opcode == 0x29);
+  bool sw_cond = (*opcode == 0x2B);
 
 
 #ifdef PROFILE
   if (addu_cond | addiu_cond) addition++;
   if (subu_cond) subtraction++;
   if (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) logic++;
-  if (sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) shift++;
+  if (sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) shift++;
   if (mult_cond | mfhi_cond | mflo_cond) multiplication++;
   if (slt_cond | sltu_cond | slti_cond | sltiu_cond) slt_u++;
   if (jr_cond | j_cond | sys_cond | jal_cond) jump++;
@@ -222,7 +221,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
   /*and andI or orI xor xorI*/
   bool logici_cond = andi_cond | ori_cond | xori_cond; 
 
-  uint logici_inp = (logici_cond) ? (ushort) imm : src2;
+  uint logici_inp = (logici_cond) ? (ushort) *imm : src2;
   uint res_and = and (src1, logici_inp);
   uint res_or = or (src1, logici_inp);
   uint res_xor = xor (src1, logici_inp);
@@ -251,7 +250,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 		     | mflo_cond
 #endif
 #ifndef USE_SHIFTER
-		     | sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond
+		     | sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond
 #endif
 #ifndef USE_SYS
 		     | sys_cond
@@ -261,7 +260,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 #endif
 		     ; 
   
-  /*MFHI*//*opcode == 0x00 & funct == 0x10*/
+  /*MFHI*//**opcode == 0x00 & *funct == 0x10*/
 #ifdef USE_MFHI
   uint res_mfhi = get_value (HI);
 #endif
@@ -271,7 +270,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 
 
 #ifdef USE_MULT
-  /*MULT*/ /*opcode == 0x00 & funct == 0x18*/
+  /*MULT*/ /**opcode == 0x00 & *funct == 0x18*/
   int64_t res_mult_temp = mult (src1, src2);
   int res_mult_lo = (mult_cond)? res_mult_temp & 0xFFFFFFFF : res_mflo;
   int res_mult_hi = (res_mult_temp >> 32);
@@ -279,25 +278,25 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 
 
 #ifdef USE_SUB  
-  /*SUBU*/ /*opcode == 0x00 & funct == 0x23*/
+  /*SUBU*/ /**opcode == 0x00 & *funct == 0x23*/
   uint res_subu = sub ((uint) src1, (uint) src2);
 #endif
 
-  /*sra*//*sraV*//*sll*//*sllV*//*srl*//*srlv*/
-  int shift_inp = (srav_cond | sllv_cond | srlv_COND) ? src1 : sa;
+  /*sra*//*sraV*//*sll*//*sllV*//*srl*//*srlV*/
+  int shift_inp = (srav_cond | sllv_cond | srlV_COND) ? src1 : *sa;
 #ifdef USE_SHIFTER
   int res_srav = sra (src2, shift_inp);
   int res_sllv = sll (src2, shift_inp);
   int res_srlv = srl (src2, shift_inp);
 #endif
 
-  int add_inp = (addiu_cond)? (sshort)imm : src2;
+  int add_inp = (addiu_cond)? (sshort)*imm : src2;
 #ifdef USE_ADDER
   /*addu addiu*/
   uint res_addu = add (src1, add_inp);
 #endif  
 
-  int slt_inp = (slti_cond | sltiu_cond) ? (sshort) imm : src2;
+  int slt_inp = (slti_cond | sltiu_cond) ? (sshort) *imm : src2;
 #ifdef	USE_SET_LESS_THAN
   /*SLT*//*SLTI*/
   int res_slt_i = (src1 < slt_inp) ? 1 : 0;
@@ -327,7 +326,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 #endif
 #ifndef USE_SHIFTER
 			     | ((sllv_cond | sll_cond) ? SLL_ROUTINE : 0x0)
-			     | ((srlv_COND | srl_cond) ? SRL_ROUTINE : 0x0)
+			     | ((srlV_COND | srl_cond) ? SRL_ROUTINE : 0x0)
 			     | ((srav_cond | sra_cond) ? SRA_ROUTINE : 0x0)
 #endif
 #ifndef	USE_SYS
@@ -350,7 +349,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 		   | ((subu_cond) ? src1 : 0x0) 
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) ? src2 : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? src2 : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src1 : 0x0)
@@ -372,7 +371,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 		   | ((subu_cond) ? src2 : 0x0)
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlv_COND | sra_cond | srav_cond) ? shift_inp : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? shift_inp : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src2 : 0x0)
@@ -426,8 +425,8 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
   else if (srl_cond){
     printf("srl: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
-  else if (srlv_COND){
-    printf("srlv: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
+  else if (srlV_COND){
+    printf("srlV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
   else if (sra_cond){
     printf("SRA: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,sra(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
@@ -458,11 +457,11 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 
   /*jal, j*/
   uint link_addr = add2 (ret_addr, 1);
-  uint ret_addr_J = add2 (((((rs << 5) | rt) << 16) | imm), -1);
+  uint ret_addr_J = add2 (((((*rs << 5) | *rt) << 16) | *imm), -1);
 
 
   /*BNE BEQZ BLEZ*/
-  uint cond_br_addr = add2 (add2 (ret_addr, (sshort)imm), -1);
+  uint cond_br_addr = add2 (add2 (ret_addr, (sshort)*imm), -1);
   bool check_eq = (src1 == src2)? true : false;
   bool src_eq_0 = (src1 == 0) ? true : false;
   bool src_gt_0 = (src1 > 0) ? true : false;
@@ -480,9 +479,9 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
   uint ret_addr_cond_br = (cond_br_all) ? cond_br_addr : ret_addr;
 
   /*lui*/
-  int res_lui = (imm << 16) | 0x0000;
+  int res_lui = (*imm << 16) | 0x0000;
   
-  int mem_addr_temp = add3 (src1, (sshort) imm);
+  int mem_addr_temp = add3 (src1, (sshort) *imm);
   /*sw*/
   uint mem_addr = (mem_addr_temp >> 2);
   int res_sw = src2;
@@ -582,7 +581,7 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 #ifdef USE_SHIFTER
            ((sll_cond | sllv_cond)? res_sllv : 0x0) |/*sll*/
 	   ((sra_cond | srav_cond)? res_srav : 0x0) | /*sra*//*sraV*/
-	   ((srl_cond | srlv_COND)? res_srlv : 0x0) | /*srl*/
+	   ((srl_cond | srlV_COND)? res_srlv : 0x0) | /*srl*/
 #endif
 	   ((jal_cond)? link_addr : 0x0) |/*JAL*/
 	   ((lui_cond)? res_lui : 0x0) |/*LUI*/
@@ -598,13 +597,13 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 		     | mult_cond
 #endif
 		     );
-  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlv_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
+  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlV_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
   bool wb_rt = (slti_cond | sltiu_cond | lw_cond | lbu_cond | lb_cond | lh_cond | lhu_cond | ori_cond | andi_cond | xori_cond | addiu_cond | lui_cond); 
   bool wb_mem_addr = (sw_cond | sb_cond | sh_cond);
 
   wb_loc = ((wb_temp_reg)? TEMP_REG : 0x0) | 
-	   ((wb_rd)? rd : 0x0) |
-	   ((wb_rt)? rt : 0x0) |
+	   ((wb_rd)? *rd : 0x0) |
+	   ((wb_rt)? *rt : 0x0) |
 	   ((wb_mem_addr)? mem_addr : 0x0) |
 #ifdef USE_MULT 
 	   ((mult_cond)? HI : 0x0) | /*mult*/
@@ -615,22 +614,21 @@ void exec (uint instruction, uchar opcode, uchar funct, uchar rs, uchar rt, ucha
 #ifdef USE_SYS
   int syscall_exit = get_value(2);
   //FIXME remove this get_value, save the result in a local variable or global variable
-  emulator_status = (sys_cond & (syscall_exit == 10)) ? FINISH : NORMAL;
-  //(sys_cond & (syscall_exit == 10)) ? __break() : ;
+  *emulator_status = (sys_cond & (syscall_exit == 10)) ? FINISH : NORMAL;
 #else
-  emulator_status = (sys_cond & (res_subleq == 10)) ? FINISH : NORMAL;
+  *emulator_status = (sys_cond & (res_subleq == 10)) ? FINISH : NORMAL;
 #endif 
 
 #ifdef USE_MULT
   write_value (res_mult_lo, LO);//FIXME remove this write_value
 #endif
   write_value (result, wb_loc);
-  prog_count = ret_addr;
+  *prog_count = ret_addr;
 #ifdef PRINT
-  printf(" RET_ADD: %x\n", prog_count << 2);
+  printf(" RET_ADD: %x\n", *prog_count << 2);
 #endif
 #if 0
-  if (opcode == 0x00 & funct == 0x00 & instruction != 0x00){
+  if (*opcode == 0x00 & *funct == 0x00 & instruction != 0x00){
     printf("Instruction: %8.8x\n", instruction);
   }
 #endif
