@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Fri 24 Apr 2015 09:46:12 AM JST
+* Last Modified on : Fri Sep 18 18:01:48 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -510,7 +510,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   uint res_lbu = (byte_check >> 1) ? ((byte_check & 0x1)? res_lbu3 : res_lbu2) : ((byte_check & 0x1)? res_lbu1 : res_lbu0);
 
   /*SH*/
-  uchar bit_check = mem_addr_temp & 0x1;
+  uchar bit_check = (mem_addr_temp >> 1) & 0x1;
   uint res_sh0 = (res_lw & 0xFFFF0000) | (0xFFFF & (src2 << 0));
   uint res_sh1 = (res_lw & 0x0000FFFF) | (0xFFFF0000 & (src2 << 16));
   uint res_sh = (bit_check)? res_sh1 : res_sh0;
