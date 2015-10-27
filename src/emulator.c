@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 //#include "../adpcm.h"
-//#include "../bf.h"
+#include "../bf.h"
 //#include "../bs.h"
 //#include "../bubble.h"
 //#include "../crc.h"
@@ -41,7 +41,7 @@
 //#include "../intmm_e.h"
 //#include "../isort_e.h"
 //#include "../jfdctint_e.h"
-#include "../mpeg_e.h"
+//#include "../mpeg_e.h"
 //#include "../vec_add_e.h"
 
 
@@ -76,7 +76,62 @@ int branch = 0;
 
 
 int64_t nosi = 0;
+int64_t nosi_d = 0;
 //unsigned int nosi = 0;
+
+#ifdef SUBLEQ_DETAIL
+unsigned int sll_nosi = 0;
+unsigned int srl_nosi = 0;
+unsigned int sra_nosi = 0;
+unsigned int sllv_nosi = 0;
+unsigned int srlv_nosi = 0;
+unsigned int srav_nosi = 0;
+unsigned int jr_nosi = 0;
+unsigned int sys_nosi = 0;
+unsigned int mfhi_nosi = 0;
+unsigned int mflo_nosi = 0;
+unsigned int mult_nosi = 0;
+unsigned int addu_nosi = 0;
+unsigned int subu_nosi = 0;
+unsigned int and_nosi = 0;
+unsigned int or_nosi = 0;
+unsigned int xor_nosi = 0;
+unsigned int nor_nosi = 0;
+unsigned int slt_nosi = 0;
+unsigned int sltu_nosi = 0;
+unsigned int j_nosi = 0;
+unsigned int jal_nosi = 0;
+unsigned int bltz_nosi = 0;
+unsigned int bgez_nosi = 0;
+unsigned int beq_nosi = 0;
+unsigned int beqz_nosi = 0;
+unsigned int bne_nosi = 0;
+unsigned int blez_nosi = 0;
+unsigned int bgtz_nosi = 0;
+unsigned int addiu_nosi = 0;
+unsigned int slti_nosi = 0;
+unsigned int sltiu_nosi = 0;
+unsigned int andi_nosi = 0;
+unsigned int ori_nosi = 0;
+unsigned int xori_nosi = 0;
+unsigned int lui_nosi = 0;
+unsigned int lb_nosi = 0;
+unsigned int lh_nosi = 0;
+unsigned int lw_nosi = 0;
+unsigned int lbu_nosi = 0;
+unsigned int lhu_nosi = 0;
+unsigned int sb_nosi = 0;
+unsigned int sh_nosi = 0;
+unsigned int sw_nosi = 0;
+#endif
+
+
+
+
+
+
+
+
 
 unsigned int bitReversal (unsigned int);// {
 uint emulator (uint);
@@ -112,6 +167,60 @@ int main(int argc, char **argv){
   }
 #endif
   printf("Total Number of Subleq Instruction: %lld\n", (long long)nosi);
+#ifdef SUBLEQ_DETAIL
+  printf("Jump Instruction: %d ", (jr_nosi + j_nosi + jal_nosi));
+  printf ("(jr = %d, ", jr_nosi);
+  printf ("j = %d, ", j_nosi);
+  printf ("jal = %d)\n", jal_nosi);
+
+  printf("Conditional branch: %d ", (bltz_nosi + bgez_nosi + beq_nosi + beqz_nosi + bne_nosi + blez_nosi + bgtz_nosi));
+  printf ("(bltz = %d, ", bltz_nosi);
+  printf ("bgez = %d, ", bgez_nosi);
+  printf ("beq = %d, ", beq_nosi);
+  printf ("beqz = %d, ", beqz_nosi);
+  printf ("bne = %d, ", bne_nosi);
+  printf ("blez = %d, ", blez_nosi);
+  printf ("bgtz = %d)\n", bgtz_nosi);
+
+  printf("Multiplication: %d ", (mult_nosi + mfhi_nosi + mflo_nosi));
+  printf ("(mult = %d, ", mult_nosi);
+  printf ("mfhi = %d, ", mfhi_nosi);
+  printf ("mflo = %d)\n", mflo_nosi);
+
+  printf("Addition: %d ", (addu_nosi + addiu_nosi));
+  printf ("(addu = %d, ", addu_nosi);
+  printf ("addiu = %d)\n", addiu_nosi);
+
+  printf("Subtraction: %d ", subu_nosi);
+  printf ("(subu = %d)\n", subu_nosi);
+
+  printf("Shift: %d ", (sll_nosi + srl_nosi + sra_nosi));
+  printf ("(sll = %d, ", sll_nosi);
+  printf ("srl = %d, ", srl_nosi);
+  printf ("sra = %d)\n", sra_nosi);
+
+  printf("Logic: %d ", (and_nosi + or_nosi + xor_nosi));
+  printf ("(and = %d, ", and_nosi);
+  printf ("or = %d, ", or_nosi);
+  printf ("xor = %d)\n", xor_nosi);
+
+  printf("Memory access: %d ", (lui_nosi + lb_nosi + lh_nosi + lw_nosi + lbu_nosi + lhu_nosi + sb_nosi + sh_nosi + sw_nosi));
+  printf ("(lui = %d, ", lui_nosi);
+  printf ("lb = %d, ", lb_nosi);
+  printf ("lh = %d, ", lh_nosi);
+  printf ("lw = %d, ", lw_nosi);
+  printf ("lbu = %d, ", lbu_nosi);
+  printf ("lhu = %d, ", lhu_nosi);
+  printf ("sb = %d, ", sb_nosi);
+  printf ("sh = %d, ", sh_nosi);
+  printf ("sw = %d)\n", sw_nosi);
+
+  printf("Set-less-than: %d ", (slt_nosi + sltu_nosi + slti_nosi + sltiu_nosi));
+  printf ("(slt = %d, ", slt_nosi);
+  printf ("sltu = %d, ", sltu_nosi);
+  printf ("slti = %d, ", slti_nosi);
+  printf ("sltiu = %d)\n", sltiu_nosi);
+#endif
 
 #ifdef PROFILE
   printf("\n=====================\nInstruction Profiling\n=====================\n");
@@ -204,7 +313,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   bool srl_cond = (r_type & (*funct == 0x02));
   bool sra_cond = (r_type & (*funct == 0x03));
   bool sllv_cond = (r_type & (*funct == 0x04));
-  bool srlV_COND = (r_type & (*funct == 0x06));
+  bool srlv_cond = (r_type & (*funct == 0x06));
   bool srav_cond = (r_type & (*funct == 0x07));
   bool jr_cond = (r_type & (*funct == 0x08));
   bool sys_cond = (r_type & (*funct == 0x0C));
@@ -249,23 +358,81 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 #ifdef SUBLEQ_COUNT
-  if (jr_cond) nosi += 5;
-  if (mfhi_cond) nosi += 4;
-  if (mflo_cond) nosi += 4;
-  if (addu_cond) nosi += 5;
-  if (subu_cond) nosi += 7;
-  if (nor_cond); 
-  if (j_cond) nosi += 1;
-  if (jal_cond) nosi += 4;
-  if (bltz_cond) nosi += 2;
-  if (bgez_cond) nosi += 2;
-  if (beq_cond) {if ((src2 - src1) > 0) nosi += 4; else nosi += 7;}
-  if (beqz_cond) {if (src1 > 0) nosi += 2; else if (src1 < 0) nosi += 3; else if (src1 == 0) nosi += 4;}
-  if (bne_cond) {if ((src2 - src1) > 0) nosi += 4; else nosi += 7;}
-  if (blez_cond) nosi += 1;
-  if (bgtz_cond) nosi += 2;
-  if (addiu_cond) nosi += 5;
-  if (lui_cond) {write_value (*imm, SRC1_LOC); write_value (16, SRC2_LOC); extended_subleq_machine(SLL_ROUTINE);}
+  nosi_d = nosi;
+
+
+  if (jr_cond) {
+    nosi += 5;
+    jr_nosi = jr_nosi + (nosi - nosi_d);
+  }
+  if (mfhi_cond){
+    nosi += 4;
+    mfhi_nosi = mfhi_nosi + (nosi - nosi_d);
+  }
+  if (mflo_cond) {
+    nosi += 4;
+    mflo_nosi = mflo_nosi + (nosi - nosi_d);
+  }
+  if (addu_cond) {
+    nosi += 5;
+    addu_nosi = addu_nosi + (nosi - nosi_d);
+  }
+  if (subu_cond) {
+    nosi += 7;
+    subu_nosi = subu_nosi + (nosi - nosi_d);
+  }
+  //if (nor_cond); 
+  //
+  if (j_cond) {
+    nosi += 1;
+    j_nosi = j_nosi + (nosi - nosi_d);
+  }
+  if (jal_cond) {
+    nosi += 4;
+    jal_nosi = jal_nosi + (nosi - nosi_d);
+  }
+  if (bltz_cond) {
+    nosi += 2;
+    bltz_nosi = bltz_nosi + (nosi - nosi_d);
+  }
+  if (bgez_cond) {
+    nosi += 2;
+    bgez_nosi = bgez_nosi + (nosi - nosi_d);
+  }
+  if (beq_cond) {
+    if ((src2 - src1) > 0) nosi += 4; 
+    else nosi += 7;
+    beq_nosi = beq_nosi + (nosi - nosi_d);
+  }
+  if (beqz_cond) {
+    if (src1 > 0) nosi += 2; 
+    else if (src1 < 0) nosi += 3; 
+    else if (src1 == 0) nosi += 4;
+    beqz_nosi = beqz_nosi + (nosi - nosi_d);
+  }
+  if (bne_cond) {
+    if ((src2 - src1) > 0) nosi += 4; 
+    else nosi += 7;
+    bne_nosi = bne_nosi + (nosi - nosi_d);
+  }
+  if (blez_cond) {
+    nosi += 1;
+    blez_nosi = blez_nosi + (nosi - nosi_d);
+  }
+  if (bgtz_cond) {
+    nosi += 2;
+    bgtz_nosi = bgtz_nosi + (nosi - nosi_d);
+  }
+  if (addiu_cond) {
+    nosi += 5;
+    addiu_nosi = addiu_nosi + (nosi - nosi_d);
+  }
+  if (lui_cond) {
+    write_value (*imm, SRC1_LOC); 
+    write_value (16, SRC2_LOC); 
+    extended_subleq_machine(SLL_ROUTINE);
+    lui_nosi = lui_nosi + (nosi - nosi_d);
+  }
   if (lb_cond) {
     unsigned int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
     nosi += 5;
@@ -276,6 +443,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    lb_nosi = lb_nosi + (nosi - nosi_d);
   }
   if (lh_cond) {
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -286,6 +454,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    lh_nosi = lh_nosi + (nosi - nosi_d);
   }
   if (lw_cond) {/*DONE*/
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -294,6 +463,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     write_value (2, SRC1_LOC);
     extended_subleq_machine (SRL_ROUTINE);
     nosi += 4;
+    lw_nosi = lw_nosi + (nosi - nosi_d);
   }
   if (lbu_cond) {
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -304,6 +474,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    lbu_nosi = lbu_nosi + (nosi - nosi_d);
   }
   if (lhu_cond) {
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -314,6 +485,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    lhu_nosi = lhu_nosi + (nosi - nosi_d);
   }
   if (sb_cond) {
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -324,6 +496,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    sb_nosi = sb_nosi + (nosi - nosi_d);
   }
   if (sh_cond) {
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -334,6 +507,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //unsigned int final_addr_temp = get_value (DEST_LOC);
     //unsigned int final_value_temp = get_value (final_addr_temp);
     nosi += 4;
+    sh_nosi = sh_nosi + (nosi - nosi_d);
   }
   if (sw_cond) {/*DONE*/
     int mem_addr_temp_temp = add3 (src1, (sshort) *imm);
@@ -342,6 +516,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     write_value (2, SRC1_LOC);
     extended_subleq_machine (SRL_ROUTINE);
     nosi += 4;
+    sw_nosi = sw_nosi + (nosi - nosi_d);
   }
 #endif
 
@@ -350,7 +525,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
   if (addu_cond | addiu_cond) addition++;
   if (subu_cond) subtraction++;
   if (and_cond | andi_cond | or_cond | ori_cond | xor_cond | xori_cond | nor_cond) logic++;
-  if (sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) shift++;
+  if (sll_cond | sllv_cond | srl_cond | srlv_cond | sra_cond | srav_cond) shift++;
   if (mult_cond | mfhi_cond | mflo_cond) multiplication++;
   if (slt_cond | sltu_cond | slti_cond | sltiu_cond) slt_u++;
   if (jr_cond | j_cond | sys_cond | jal_cond) jump++;
@@ -377,7 +552,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     | mflo_cond
 #endif
 #ifndef USE_SHIFTER
-		     | sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond
+		     | sll_cond | sllv_cond | srl_cond | srlv_cond | sra_cond | srav_cond
 #endif
 #ifndef USE_SYS
 		     | sys_cond
@@ -436,7 +611,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 
   /*sra*//*sraV*//*sll*//*sllV*//*srl*//*srlV*/
-  int shift_inp = (srav_cond | sllv_cond | srlV_COND) ? src1 : *sa;
+  int shift_inp = (srav_cond | sllv_cond | srlv_cond) ? src1 : *sa;
 #ifdef USE_SHIFTER
   int res_srav = sra (src2, shift_inp);
   int res_sllv = sll (src2, shift_inp);
@@ -479,7 +654,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 #ifndef USE_SHIFTER
 			     | ((sllv_cond | sll_cond) ? SLL_ROUTINE : 0x0)
-			     | ((srlV_COND | srl_cond) ? SRL_ROUTINE : 0x0)
+			     | ((srlv_cond | srl_cond) ? SRL_ROUTINE : 0x0)
 			     | ((srav_cond | sra_cond) ? SRA_ROUTINE : 0x0)
 #endif
 #ifndef	USE_SYS
@@ -508,7 +683,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((subu_cond) ? src1 : 0x0) 
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? src2 : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlv_cond | sra_cond | srav_cond) ? src2 : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src1 : 0x0)
@@ -533,7 +708,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		   | ((subu_cond) ? src2 : 0x0)
 #endif
 #ifndef	USE_SHIFTER
-		   | ((sll_cond | sllv_cond | srl_cond | srlV_COND | sra_cond | srav_cond) ? shift_inp : 0x0)
+		   | ((sll_cond | sllv_cond | srl_cond | srlv_cond | sra_cond | srav_cond) ? shift_inp : 0x0)
 #endif
 #ifndef USE_SYS
 		   | ((sys_cond) ? src2 : 0x0)
@@ -553,6 +728,40 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     //subleq_machine(routine_addr);
     extended_subleq_machine(routine_addr);
     res_subleq = get_value(DEST_LOC);
+    if (sll_cond | sllv_cond) {
+      sll_nosi = sll_nosi + (nosi - nosi_d);
+    }
+    else if (srl_cond | srlv_cond) {
+      srl_nosi = srl_nosi + (nosi - nosi_d);
+    }
+    else if (sra_cond | srav_cond) {
+      sra_nosi = sra_nosi + (nosi - nosi_d);
+    }
+    else if (and_cond | andi_cond) {
+      and_nosi = and_nosi + (nosi - nosi_d);
+    }
+    else if (or_cond | ori_cond) {
+      or_nosi = or_nosi + (nosi - nosi_d);
+    }
+    else if (xor_cond | xori_cond) {
+      xor_nosi = xor_nosi + (nosi - nosi_d);
+    }
+    else if (mult_cond) {
+      mult_nosi = mult_nosi + (nosi - nosi_d);
+    }
+    else if (slt_cond) {
+      slt_nosi = slt_nosi + (nosi - nosi_d);
+    }
+    else if (sltu_cond) {
+      sltu_nosi = sltu_nosi + (nosi - nosi_d);
+    }
+    else if (slti_cond) {
+      slti_nosi = slti_nosi + (nosi - nosi_d);
+    }
+    else if (sltiu_cond) {
+      sltiu_nosi = sltiu_nosi + (nosi - nosi_d);
+    }
+
   }
 #endif
 
@@ -596,7 +805,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
     if (srl(src2, shift_inp) != res_subleq)
       printf("srl: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
-  else if (srlV_COND){
+  else if (srlv_cond){
     if (srl(src2, shift_inp) != res_subleq)
       printf("srlV: N:(%x,%x,%x), S:(%x,%x,%x)\n",src2,shift_inp,srl(src2,shift_inp),subleq_src1,subleq_src2,res_subleq);
   }
@@ -785,7 +994,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #ifdef USE_SHIFTER
            ((sll_cond | sllv_cond)? res_sllv : 0x0) |/*sll*/
 	   ((sra_cond | srav_cond)? res_srav : 0x0) | /*sra*//*sraV*/
-	   ((srl_cond | srlV_COND)? res_srlv : 0x0) | /*srl*/
+	   ((srl_cond | srlv_cond)? res_srlv : 0x0) | /*srl*/
 #endif
 	   ((jal_cond)? link_addr : 0x0) |/*JAL*/
 	   ((lui_cond)? res_lui : 0x0) |/*LUI*/
@@ -801,7 +1010,7 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 		     | mult_cond
 #endif
 		     );
-  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlV_COND | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
+  bool wb_rd = (sll_cond | sllv_cond | sra_cond | srav_cond | srl_cond | srlv_cond | and_cond | or_cond | xor_cond | nor_cond | slt_cond | sltu_cond | addu_cond | subu_cond | mfhi_cond | mflo_cond);  
   bool wb_rt = (slti_cond | sltiu_cond | lw_cond | lbu_cond | lb_cond | lh_cond | lhu_cond | ori_cond | andi_cond | xori_cond | addiu_cond | lui_cond); 
   bool wb_mem_addr = (sw_cond | sb_cond | sh_cond);
 
@@ -923,7 +1132,9 @@ void extended_subleq_machine (unsigned int prog_count) {
   //while (prog_count != 0){
   //}
   while (true) {
+#ifdef SUBLEQ_COUNT
     nosi ++;
+#endif
     //printf("WORKING\n");
     unsigned int a = get_value (prog_count);
     unsigned int b = get_value (prog_count + 0x1);

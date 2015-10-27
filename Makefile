@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-c -g -O3 -Wall
-LDFLAGS=-lelf
+LDFLAGS=#-lelf
 SOURCES=./src/emulator.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=subleq
