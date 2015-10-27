@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Tue Sep  8 09:17:53 2015
+* Last Modified on : Tue Oct 27 15:55:28 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-//#define PRINT
+#define PRINT
 
 #define	SUBLEQ_COUNT
 
@@ -97,7 +97,7 @@ unsigned int TEMP7;
 #define SYS_ROUTINE	256
 
 
-#if 1
+#if 0
 #define	AND_ROUTINE	1219
 #define MUL_ROUTINE	838
 #define	OR_ROUTINE	538
@@ -112,7 +112,7 @@ unsigned int TEMP7;
 
 
 
-#if 0
+#if 1
 #define	AND_ROUTINE	1414
 #define MUL_ROUTINE	1036
 #define	OR_ROUTINE	739

@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Tue Sep  8 09:18:37 2015
+* Last Modified on : Tue Oct 27 15:55:37 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 //#include "../adpcm.h"
-#include "../bf.h"
+//#include "../bf.h"
 //#include "../bs.h"
 //#include "../bubble.h"
 //#include "../crc.h"
@@ -42,7 +42,7 @@
 //#include "../isort_e.h"
 //#include "../jfdctint_e.h"
 //#include "../mpeg_e.h"
-//#include "../vec_add_e.h"
+#include "../vec_add_e.h"
 
 
 
@@ -80,49 +80,49 @@ int64_t nosi_d = 0;
 //unsigned int nosi = 0;
 
 #ifdef SUBLEQ_DETAIL
-unsigned int sll_nosi = 0;
-unsigned int srl_nosi = 0;
-unsigned int sra_nosi = 0;
-unsigned int sllv_nosi = 0;
-unsigned int srlv_nosi = 0;
-unsigned int srav_nosi = 0;
-unsigned int jr_nosi = 0;
-unsigned int sys_nosi = 0;
-unsigned int mfhi_nosi = 0;
-unsigned int mflo_nosi = 0;
-unsigned int mult_nosi = 0;
-unsigned int addu_nosi = 0;
-unsigned int subu_nosi = 0;
-unsigned int and_nosi = 0;
-unsigned int or_nosi = 0;
-unsigned int xor_nosi = 0;
-unsigned int nor_nosi = 0;
-unsigned int slt_nosi = 0;
-unsigned int sltu_nosi = 0;
-unsigned int j_nosi = 0;
-unsigned int jal_nosi = 0;
-unsigned int bltz_nosi = 0;
-unsigned int bgez_nosi = 0;
-unsigned int beq_nosi = 0;
-unsigned int beqz_nosi = 0;
-unsigned int bne_nosi = 0;
-unsigned int blez_nosi = 0;
-unsigned int bgtz_nosi = 0;
-unsigned int addiu_nosi = 0;
-unsigned int slti_nosi = 0;
-unsigned int sltiu_nosi = 0;
-unsigned int andi_nosi = 0;
-unsigned int ori_nosi = 0;
-unsigned int xori_nosi = 0;
-unsigned int lui_nosi = 0;
-unsigned int lb_nosi = 0;
-unsigned int lh_nosi = 0;
-unsigned int lw_nosi = 0;
-unsigned int lbu_nosi = 0;
-unsigned int lhu_nosi = 0;
-unsigned int sb_nosi = 0;
-unsigned int sh_nosi = 0;
-unsigned int sw_nosi = 0;
+int64_t sll_nosi = 0;
+int64_t srl_nosi = 0;
+int64_t sra_nosi = 0;
+int64_t sllv_nosi = 0;
+int64_t srlv_nosi = 0;
+int64_t srav_nosi = 0;
+int64_t jr_nosi = 0;
+int64_t sys_nosi = 0;
+int64_t mfhi_nosi = 0;
+int64_t mflo_nosi = 0;
+int64_t mult_nosi = 0;
+int64_t addu_nosi = 0;
+int64_t subu_nosi = 0;
+int64_t and_nosi = 0;
+int64_t or_nosi = 0;
+int64_t xor_nosi = 0;
+int64_t nor_nosi = 0;
+int64_t slt_nosi = 0;
+int64_t sltu_nosi = 0;
+int64_t j_nosi = 0;
+int64_t jal_nosi = 0;
+int64_t bltz_nosi = 0;
+int64_t bgez_nosi = 0;
+int64_t beq_nosi = 0;
+int64_t beqz_nosi = 0;
+int64_t bne_nosi = 0;
+int64_t blez_nosi = 0;
+int64_t bgtz_nosi = 0;
+int64_t addiu_nosi = 0;
+int64_t slti_nosi = 0;
+int64_t sltiu_nosi = 0;
+int64_t andi_nosi = 0;
+int64_t ori_nosi = 0;
+int64_t xori_nosi = 0;
+int64_t lui_nosi = 0;
+int64_t lb_nosi = 0;
+int64_t lh_nosi = 0;
+int64_t lw_nosi = 0;
+int64_t lbu_nosi = 0;
+int64_t lhu_nosi = 0;
+int64_t sb_nosi = 0;
+int64_t sh_nosi = 0;
+int64_t sw_nosi = 0;
 #endif
 
 
@@ -168,58 +168,58 @@ int main(int argc, char **argv){
 #endif
   printf("Total Number of Subleq Instruction: %lld\n", (long long)nosi);
 #ifdef SUBLEQ_DETAIL
-  printf("Jump Instruction: %d ", (jr_nosi + j_nosi + jal_nosi));
-  printf ("(jr = %d, ", jr_nosi);
-  printf ("j = %d, ", j_nosi);
-  printf ("jal = %d)\n", jal_nosi);
+  printf("Jump Instruction: %lld ", (long long)(jr_nosi + j_nosi + jal_nosi));
+  printf ("(jr = %lld, ", (long long)jr_nosi);
+  printf ("j = %lld, ", (long long)j_nosi);
+  printf ("jal = %lld)\n", (long long)jal_nosi);
 
-  printf("Conditional branch: %d ", (bltz_nosi + bgez_nosi + beq_nosi + beqz_nosi + bne_nosi + blez_nosi + bgtz_nosi));
-  printf ("(bltz = %d, ", bltz_nosi);
-  printf ("bgez = %d, ", bgez_nosi);
-  printf ("beq = %d, ", beq_nosi);
-  printf ("beqz = %d, ", beqz_nosi);
-  printf ("bne = %d, ", bne_nosi);
-  printf ("blez = %d, ", blez_nosi);
-  printf ("bgtz = %d)\n", bgtz_nosi);
+  printf("Conditional branch: %lld ", (long long)(bltz_nosi + bgez_nosi + beq_nosi + beqz_nosi + bne_nosi + blez_nosi + bgtz_nosi));
+  printf ("(bltz = %lld, ", (long long)bltz_nosi);
+  printf ("bgez = %lld, ", (long long)bgez_nosi);
+  printf ("beq = %lld, ", (long long)beq_nosi);
+  printf ("beqz = %lld, ", (long long)beqz_nosi);
+  printf ("bne = %lld, ", (long long)bne_nosi);
+  printf ("blez = %lld, ", (long long)blez_nosi);
+  printf ("bgtz = %lld)\n", (long long)bgtz_nosi);
 
-  printf("Multiplication: %d ", (mult_nosi + mfhi_nosi + mflo_nosi));
-  printf ("(mult = %d, ", mult_nosi);
-  printf ("mfhi = %d, ", mfhi_nosi);
-  printf ("mflo = %d)\n", mflo_nosi);
+  printf("Multiplication: %lld ", (long long)(mult_nosi + mfhi_nosi + mflo_nosi));
+  printf ("(mult = %lld, ", (long long)mult_nosi);
+  printf ("mfhi = %lld, ", (long long)mfhi_nosi);
+  printf ("mflo = %lld)\n", (long long)mflo_nosi);
 
-  printf("Addition: %d ", (addu_nosi + addiu_nosi));
-  printf ("(addu = %d, ", addu_nosi);
-  printf ("addiu = %d)\n", addiu_nosi);
+  printf("Addition: %lld ", (long long)(addu_nosi + addiu_nosi));
+  printf ("(addu = %lld, ", (long long)addu_nosi);
+  printf ("addiu = %lld)\n", (long long)addiu_nosi);
 
-  printf("Subtraction: %d ", subu_nosi);
-  printf ("(subu = %d)\n", subu_nosi);
+  printf("Subtraction: %lld ", (long long)subu_nosi);
+  printf ("(subu = %lld)\n", (long long)subu_nosi);
 
-  printf("Shift: %d ", (sll_nosi + srl_nosi + sra_nosi));
-  printf ("(sll = %d, ", sll_nosi);
-  printf ("srl = %d, ", srl_nosi);
-  printf ("sra = %d)\n", sra_nosi);
+  printf("Shift: %lld ", (long long)(sll_nosi + srl_nosi + sra_nosi));
+  printf ("(sll = %lld, ", (long long)sll_nosi);
+  printf ("srl = %lld, ", (long long)srl_nosi);
+  printf ("sra = %lld)\n", (long long)sra_nosi);
 
-  printf("Logic: %d ", (and_nosi + or_nosi + xor_nosi));
-  printf ("(and = %d, ", and_nosi);
-  printf ("or = %d, ", or_nosi);
-  printf ("xor = %d)\n", xor_nosi);
+  printf("Logic: %lld ", (long long)(and_nosi + or_nosi + xor_nosi));
+  printf ("(and = %lld, ", (long long)and_nosi);
+  printf ("or = %lld, ", (long long)or_nosi);
+  printf ("xor = %lld)\n", (long long)xor_nosi);
 
-  printf("Memory access: %d ", (lui_nosi + lb_nosi + lh_nosi + lw_nosi + lbu_nosi + lhu_nosi + sb_nosi + sh_nosi + sw_nosi));
-  printf ("(lui = %d, ", lui_nosi);
-  printf ("lb = %d, ", lb_nosi);
-  printf ("lh = %d, ", lh_nosi);
-  printf ("lw = %d, ", lw_nosi);
-  printf ("lbu = %d, ", lbu_nosi);
-  printf ("lhu = %d, ", lhu_nosi);
-  printf ("sb = %d, ", sb_nosi);
-  printf ("sh = %d, ", sh_nosi);
-  printf ("sw = %d)\n", sw_nosi);
+  printf("Memory access: %lld ", (long long)(lui_nosi + lb_nosi + lh_nosi + lw_nosi + lbu_nosi + lhu_nosi + sb_nosi + sh_nosi + sw_nosi));
+  printf ("(lui = %lld, ", (long long)lui_nosi);
+  printf ("lb = %lld, ", (long long)lb_nosi);
+  printf ("lh = %lld, ", (long long)lh_nosi);
+  printf ("lw = %lld, ", (long long)lw_nosi);
+  printf ("lbu = %lld, ", (long long)lbu_nosi);
+  printf ("lhu = %lld, ", (long long)lhu_nosi);
+  printf ("sb = %lld, ", (long long)sb_nosi);
+  printf ("sh = %lld, ", (long long)sh_nosi);
+  printf ("sw = %lld)\n", (long long)sw_nosi);
 
-  printf("Set-less-than: %d ", (slt_nosi + sltu_nosi + slti_nosi + sltiu_nosi));
-  printf ("(slt = %d, ", slt_nosi);
-  printf ("sltu = %d, ", sltu_nosi);
-  printf ("slti = %d, ", slti_nosi);
-  printf ("sltiu = %d)\n", sltiu_nosi);
+  printf("Set-less-than: %lld ", (long long)(slt_nosi + sltu_nosi + slti_nosi + sltiu_nosi));
+  printf ("(slt = %lld, ", (long long)slt_nosi);
+  printf ("sltu = %lld, ", (long long)sltu_nosi);
+  printf ("slti = %lld, ", (long long)slti_nosi);
+  printf ("sltiu = %lld)\n", (long long)sltiu_nosi);
 #endif
 
 #ifdef PROFILE
