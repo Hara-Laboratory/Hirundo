@@ -4,7 +4,7 @@
 
 * Created on : 05-01-2015
 
-* Last Modified on : Tue Oct 27 15:55:37 2015
+* Last Modified on : Mon Nov  2 20:07:03 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 //#include "../adpcm.h"
-//#include "../bf.h"
+#include "../bf.h"
 //#include "../bs.h"
 //#include "../bubble.h"
 //#include "../crc.h"
@@ -42,7 +42,7 @@
 //#include "../isort_e.h"
 //#include "../jfdctint_e.h"
 //#include "../mpeg_e.h"
-#include "../vec_add_e.h"
+//#include "../vec_add_e.h"
 
 
 
@@ -583,9 +583,27 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 #endif
 
 #ifdef SUBLEQ_COUNT
-  if (and_cond | andi_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (AND_ROUTINE);}
-  if (or_cond | ori_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (OR_ROUTINE);}
-  if (xor_cond | xori_cond) {write_value (src1, SRC1_LOC); write_value (logici_inp, SRC2_LOC); extended_subleq_machine (XOR_ROUTINE);}
+  if (and_cond | andi_cond) {
+    nosi_d = nosi;
+    write_value (src1, SRC1_LOC); 
+    write_value (logici_inp, SRC2_LOC); 
+    extended_subleq_machine (AND_ROUTINE);
+    and_nosi = and_nosi + (nosi - nosi_d);
+  }
+  if (or_cond | ori_cond) {
+    nosi_d = nosi;
+    write_value (src1, SRC1_LOC); 
+    write_value (logici_inp, SRC2_LOC); 
+    extended_subleq_machine (OR_ROUTINE);
+    or_nosi = or_nosi + (nosi - nosi_d);
+  }
+  if (xor_cond | xori_cond) {
+    nosi_d = nosi;
+    write_value (src1, SRC1_LOC); 
+    write_value (logici_inp, SRC2_LOC); 
+    extended_subleq_machine (XOR_ROUTINE);
+    xor_nosi = xor_nosi + (nosi - nosi_d);
+  }
 #endif
 
   /*MFHI*//**opcode == 0x00 & *funct == 0x10*/

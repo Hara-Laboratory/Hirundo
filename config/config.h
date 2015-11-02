@@ -4,7 +4,7 @@
 
 * Created on : 06-01-2015
 
-* Last Modified on : Tue Oct 27 15:55:28 2015
+* Last Modified on : Mon Nov  2 20:06:24 2015
 
 * Primary Author : Tanvir Ahmed 
 * Email : tanvira@ieee.org
@@ -42,7 +42,7 @@
 //#define USE_SHIFTER
 #define USE_SYS
 //#define USE_SET_LESS_THAN
-//#define USE_LOGIC_UNIT
+#define USE_LOGIC_UNIT
 
 //#define MEM_SIZE	1024//0xe000000
 #define MEM_SIZE	0x4000//3800000//1024//0xe000000
@@ -97,7 +97,7 @@ unsigned int TEMP7;
 #define SYS_ROUTINE	256
 
 
-#if 0
+#if 1
 #define	AND_ROUTINE	1219
 #define MUL_ROUTINE	838
 #define	OR_ROUTINE	538
@@ -112,7 +112,7 @@ unsigned int TEMP7;
 
 
 
-#if 1
+#if 0
 #define	AND_ROUTINE	1414
 #define MUL_ROUTINE	1036
 #define	OR_ROUTINE	739
