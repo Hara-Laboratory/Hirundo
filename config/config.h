@@ -56,7 +56,9 @@ bool checkFault (unsigned int, unsigned int, unsigned int, int, unsigned int);
 
 
 //#define MEM_SIZE	1024//0xe000000
-#define MEM_SIZE	0x8000//3800000//1024//0xe000000
+//#define MEM_SIZE	0x8000//3800000//1024//0xe000000
+#define MEM_SIZE	0x4000//3800000//1024//0xe000000
+//#define MEM_SIZE	MEM_index_end
 //unsigned int MEM[MEM_SIZE];
 //unsigned char MEM0[MEM_SIZE];
 //unsigned char MEM1[MEM_SIZE];
