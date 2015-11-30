@@ -18,18 +18,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "../benchmarks/adpcm.h"
-//#include "../benchmarks/bf.h"
-//#include "../benchmarks/bs.h"
-//#include "../benchmarks/bubble.h"
-//#include "../benchmarks/crc.h"
-//#include "../benchmarks/fibcall.h"
-//#include "../benchmarks/gsm.h"
-//#include "../benchmarks/intmm.h"
-//#include "../benchmarks/insertsort.h"
-//#include "../benchmarks/jfdctint.h"
-//#include "../benchmarks/mpeg2.h"
-//#include "../benchmarks/vec_add.h"
+//#include "../benchmarks/adpcm.h" //?benchmark-adpcm?
+//#include "../benchmarks/bf.h" //?benchmark-bf?
+//#include "../benchmarks/bs.h" //?benchmark-bs?
+//#include "../benchmarks/bubble.h" //?benchmark-bubble?
+//#include "../benchmarks/crc.h" //?benchmark-crc?
+//#include "../benchmarks/fibcall.h" //?benchmark-fibcall?
+//#include "../benchmarks/gsm.h" //?benchmark-gsm?
+//#include "../benchmarks/intmm.h" //?benchmark-intmm?
+#include "../benchmarks/insertsort.h" //?benchmark-insertsort?
+//#include "../benchmarks/jfdctint.h" //?benchmark-jfdctint?
+//#include "../benchmarks/mpeg2.h" //?benchmark-mpeg2?
+//#include "../benchmarks/vec_add.h" //?benchmark-vec_add?
 
 
 #ifdef FAULT_ANALYZER
@@ -83,7 +83,8 @@ int place[] = {32,32,16,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 32,32,32,32,32,8,8,8,8,8,1,32,32,32,16,16,16,1,16,1,
 32,1,1,1,1,16,16};//fault-place bitnum
 
-bool stuck1 = true;//******=1?stuck at 1:0*******
+//bool stuck1 = false; //?stuck-at-0?
+bool stuck1 = true; //?stuck-at-1?
 
 int main(int argc, char **argv){
   FILE *fout= fopen(argc > 1 ? argv[1] : "output.dat","w");
