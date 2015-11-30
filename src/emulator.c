@@ -1091,3 +1091,4 @@ void printReg(void){
   }
   printf("\n");
 }
+// vim: set sw=2 et :
