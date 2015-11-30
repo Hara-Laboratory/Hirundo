@@ -1,6 +1,6 @@
-CC=$(HOME)/toolchains/bin/gcc
-CFLAGS=-c -g -O3 -Wall
-LDFLAGS=-lelf
+CC=gcc
+CFLAGS=-c -ggdb -Og -Wall
+LDFLAGS=#-lelf
 SOURCES=./src/emulator.c ./src/faultInjector.c ./src/listMem.c ./src/listTrace.c# ./src/list.c 
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=subleq
