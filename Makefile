@@ -10,7 +10,7 @@ all:	$(SOURCES) $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
-.c.o:
+%.o: %.c Makefile
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
