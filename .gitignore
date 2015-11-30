@@ -1,3 +1,9 @@
 *.o
 subleq
 *~
+
+experiment/
+output.dat
+subleq
+subleq.exe
+subleq.exe.stackdump
