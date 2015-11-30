@@ -34,7 +34,7 @@
 //#include "../benchmarks/vec_add.h"
 
 
-
+extern const size_t MEM_index_end;
 
 
 unsigned int prog_counter_copy;
@@ -44,7 +44,7 @@ unsigned int write_value (unsigned int, unsigned int);
 
 void createNewMem () {
   int i;
-  for (i = 0; i < MEM_SIZE; i++) {
+  for (i = 0; i < MEM_index_end; i++) {
     addToMem (get_value(i));
   }
 } 
@@ -66,7 +66,7 @@ bool checkFault (unsigned int cycleNo, unsigned int progCount, unsigned int inst
 void updateMem (){
   int i;
   bool start = true;
-  for (i = 0; i < MEM_SIZE; i++) {
+  for (i = 0; i < MEM_index_end; i++) {
     unsigned int inst = copyMem(&start);
     write_value (inst, i);
   }
