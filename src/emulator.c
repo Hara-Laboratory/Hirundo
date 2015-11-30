@@ -86,8 +86,7 @@ int place[] = {32,32,16,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 bool stuck1 = true;//******=1?stuck at 1:0*******
 
 int main(int argc, char **argv){
-  FILE *fout;
-  fout = fopen("output.dat","w");
+  FILE *fout= fopen(argc > 1 ? argv[1] : "output.dat","w");
   
   int N;
   uint prog_count = 0x2000;
