@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS=-c -ggdb -Og -Wall
+#CFLAGS=ggdb -Og -Wall
+CFLAGS=-ggdb -O2 -Wall
 LDFLAGS=#-lelf
 SOURCES=./src/emulator.c ./src/faultInjector.c ./src/listMem.c ./src/listTrace.c# ./src/list.c 
 OBJECTS=$(SOURCES:.c=.o)
@@ -11,7 +12,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
 %.o: %.c Makefile
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
 	rm -rf $(EXECUTABLE) $(OBJECTS) *~ dump 
