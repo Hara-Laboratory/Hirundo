@@ -1007,10 +1007,20 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 
 
 uint get_value(uint location){
+  if (location >= MEM_SIZE){
+    printf("Segement Error!!!!!!!\n");
+    exit(1);
+  }
+
   return MEM[location];
 }
 
 void write_value(int value, uint location){
+  if (location >= MEM_SIZE){
+    printf("Segement Error!!!!!!!\n");
+    exit(1);
+  }
+
   MEM[location] = value;
 }
 
