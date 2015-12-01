@@ -75,7 +75,7 @@ void printReg(void);
 
 #define SIGNAL 126
 int signal;//fault signal number
-int place[] = {32,32,16,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+const int place[] = {32,32,15,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,32,
 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,16,
@@ -83,8 +83,8 @@ int place[] = {32,32,16,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 32,32,32,32,32,8,8,8,8,8,1,32,32,32,16,16,16,1,16,1,
 32,1,1,1,1,16,16};//fault-place bitnum
 
-//bool stuck1 = false; //?stuck-at-0?
-bool stuck1 = true; //?stuck-at-1?
+//const bool stuck1 = false; //?stuck-at-0?
+const bool stuck1 = true; //?stuck-at-1?
 
 int main(int argc, char **argv){
   FILE *fout= fopen(argc > 1 ? argv[1] : "output.dat","w");
