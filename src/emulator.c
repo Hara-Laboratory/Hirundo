@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <setjmp.h>
 
 //#include "../benchmarks/adpcm.h" //?benchmark-adpcm?
 //#include "../benchmarks/bf.h" //?benchmark-bf?
@@ -85,6 +86,8 @@ const int place[] = {32,32,15,6,6,6,6,6,6,6,32,32,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1
 
 //const bool stuck1 = false; //?stuck-at-0?
 const bool stuck1 = true; //?stuck-at-1?
+
+jmp_buf finish_emulator;
 
 int main(int argc, char **argv){
   FILE *fout= fopen(argc > 1 ? argv[1] : "output.dat","w");
@@ -183,30 +186,32 @@ uint emulator (uint prog_count, bool injectFault, int bitnum) {
     //printTrace();
 
 
-  while (emulator_status == NORMAL){
-    /*fetch instructions*/
-    instruction = get_value (prog_count);//signal-1, 32-bit
-/*  
-    if (injectFault){
-      unsigned int error = 0x1;
-      instruction = instruction | error; //for sa1
-    }*/
-    if(injectFault & (signal==0)){
+  if (setjmp(finish_emulator) == 0) {
+    while (emulator_status == NORMAL){
+      /*fetch instructions*/
+      instruction = get_value (prog_count);//signal-1, 32-bit
+      /*  
+          if (injectFault){
+          unsigned int error = 0x1;
+          instruction = instruction | error; //for sa1
+          }*/
+      if(injectFault & (signal==0)){
         instruction =stuck1 ?instruction | error: instruction & error0;
+      }
+      prog_count_1 = prog_count_1 + 1;//signal-2, 32-bit
+      if(injectFault & (signal==1)){
+        prog_count_1 = stuck1 ? prog_count_1 | error: prog_count_1 & error0;
+      }
+      prog_count = prog_count_1;//signal-3,16-bit
+      if(injectFault & (signal==2)){
+        prog_count =  stuck1 ? prog_count | error: prog_count & error0;
+      }
+      //printf("\n%d",prog_count);
+      exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &emulator_status, injectFault, cycleCount, bitnum);
+      cycleCount++;
     }
-    prog_count_1 = prog_count_1 + 1;//signal-2, 32-bit
-    if(injectFault & (signal==1)){
-       prog_count_1 = stuck1 ? prog_count_1 | error: prog_count_1 & error0;
-    }
-    prog_count = prog_count_1;//signal-3,16-bit
-    if(injectFault & (signal==2)){
-       prog_count =  stuck1 ? prog_count | error: prog_count & error0;
-    }
-     
-    exec (instruction, &opcode, &funct, &rs, &rt, &rd, &imm, &sa, &prog_count_1, &emulator_status, injectFault, cycleCount, bitnum);
-    cycleCount++;
   }
-  prog_count_1 = prog_count_1 & 0x1; 
+  prog_count_1= prog_count_1 & 0x1;
   return cycleCount;//emulator_status;
 }
 
@@ -1009,7 +1014,8 @@ void exec (uint instruction, uchar *opcode, uchar *funct, uchar *rs, uchar *rt, 
 uint get_value(uint location){
   if (location >= MEM_SIZE){
     printf("Segement Error!!!!!!!\n");
-    exit(1);
+    longjmp(finish_emulator,1);
+   
   }
 
   return MEM[location];
@@ -1018,7 +1024,7 @@ uint get_value(uint location){
 void write_value(int value, uint location){
   if (location >= MEM_SIZE){
     printf("Segement Error!!!!!!!\n");
-    exit(1);
+    longjmp(finish_emulator,1);
   }
 
   MEM[location] = value;
